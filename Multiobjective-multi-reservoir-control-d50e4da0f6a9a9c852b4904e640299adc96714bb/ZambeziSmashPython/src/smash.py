@@ -6,49 +6,64 @@
 # ===========================================================================
 
 # REMAINING TASKS: i) Documentation ii) ANN code translation
-
+# Contains the class that allows user to specify desired policy function
+''' (SMASH standing for Smart Direct Policy Search).
+This file contains the classes that provide the user with the functionality to create stylised policy functions.
+The type of a policy function can be either one of the built-in function approximators such as RBF and ANN
+or a type that is completely specified by the user with the given schema as guidance.
+The main benefit of the Policy class in this file is that it assembles the parameters of the policy functions
+that are used in various places of the model logic and only then communicates a vector of all parameters
+to the optimisation engine.
+'''
 import numpy as np
 from alternative_policy_structures import irrigation_policy
 
 class Policy:
-    """
-    Placeholder
-    """
-
     def __init__(self):
-
         self.functions = dict()
         self.approximator_names = list()
         self.all_parameters = np.empty(0)
 
     def add_policy_function(self, name, type, n_inputs, n_outputs, **kwargs):
         """
-        Placeholder
+        Adds the policy functions to the policy class, based on the "type" given as input.
+        The policy functions are either RBF, user specified or ANN. ANN are not configured currently.
+        The RBF function is defined in the ncRBF method and the user specified
+        function is defined in the klass method.
+
+        Placeholder < ?
         """
 
         if type == "ncRBF":
-            self.functions[name] = ncRBF(n_inputs, n_outputs, kwargs['n_structures'])
+            self.functions[name] = ncRBF(n_inputs, n_outputs, kwargs['n_structures']) # name = release
         
         elif type == "user_specified":
-            class_name = kwargs['class_name']
+            class_name = kwargs['class_name'] # name = irrigation, class_name = irrigation_policy
             klass = globals()[class_name]
             self.functions[name] = klass(n_inputs, n_outputs, kwargs)
         
-        elif self.type == "ANN":
+        elif type == "ANN":
             pass
 
+        # Create a list of all the policy names (release, irrigation)
         self.approximator_names.append(name)
         # self.all_parameters = np.append
     
     def assign_free_parameters(self, full_array):
+        """
+        The assign_free_parameters functions uses the getFreeParameterNumber() function to calculate the # of parameters
+        for the irrigation policies (in this smash module) and for the release policies (in alternative_policy_
+        structures).
+        The function is used to assign all policy parameters (free parameter = not predefined parameter) to the policy class
+
+        """
         beginning = 0
         for name in self.approximator_names:
             end = beginning + self.functions[name].getFreeParameterNumber()
             self.functions[name].setParameters(full_array[beginning:end])
             beginning = end
 
-class abstract_approximator: # formerly abstract_approximator
-
+class abstract_approximator:
     def __init__(self):
         # function input/output normalization
         self.input_max, self.output_max, \
@@ -222,14 +237,15 @@ class RBFparams:
         self.b = np.empty(0)
         self.w = np.empty(0)
 
+
 class ncRBF(abstract_approximator):
 
     def __init__(self, pM, pK, pN):
         # function input/output normalization
-        abstract_approximator.__init__(self)
-        self.M = pM
-        self.K = pK
-        self.N = pN
+        abstract_approximator.__init__(self) # n_inputs, n_outputs, kwargs['n_structures']
+        self.M = pM #number of inputs
+        self.K = pK #number of outputs
+        self.N = pN #kwargs[n_structures]
         self.lin_param = np.empty(0)
         self.param = list()
 
@@ -304,7 +320,7 @@ class ncRBF(abstract_approximator):
         
         return y
 
-    def getFreeParameterNumber(self):
+    def getFreeParameterNumber(self): #the number of parameters for release policies (RBF)
         return self.K + self.N * (self.M * 2 + self.K)
         
     def setMaxInput(self, pV):

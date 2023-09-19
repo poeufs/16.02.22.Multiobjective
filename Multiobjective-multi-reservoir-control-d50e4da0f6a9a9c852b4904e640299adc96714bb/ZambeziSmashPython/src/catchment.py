@@ -1,4 +1,4 @@
-# Catchement class
+# Catchment class
 
 from utils import utils, myFile
 
