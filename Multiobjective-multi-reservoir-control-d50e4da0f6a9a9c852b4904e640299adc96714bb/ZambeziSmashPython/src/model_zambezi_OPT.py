@@ -27,20 +27,21 @@ class model_zambezi:
     def __init__(self):
         """
         Creating the static objects of the model including the reservoirs,
-        catchements and policy objects along with their parameters. Also,
+        catchments and policy objects along with their parameters. Also,
         reading both the model run configuration from settings,
         input data (flows etc.) as well as policy function hyper-parameters.
         """
 
+        #####################################################################
         # initialize parameter constructs for objects (policy and catchment)
-        # (has to be done before file reading)
+        #####################################################################
         
-        # initialize parameter constructs for to be created policy objects   
+        # 1. initialize parameter constructs for to be created policy objects
         self.p_param = policy_parameters_construct()
         self.irr_param = irr_function_parameters()
 
-        # initialize parameter constructs for to be created
-        # Catchment parameter objects (stored in a dictionary):
+        # 2. initialize parameter constructs for to be created catchment parameter objects (stored in a dictionary):
+        # TODO: change abbreviations/catchment names
         catchment_list = ["Itt","KafueFlats","Ka","Cb","Cuando","Shire","Bg"]
         self.catchment_param_dict = dict()
         
@@ -48,8 +49,7 @@ class model_zambezi:
             catch_param_name = catchment_name + "_catch_param"
             self.catchment_param_dict[catch_param_name] = catchment_param()
 
-        # Reservoir parameter objects (stored seperately
-        # to facilitate settings file reference):
+        # Reservoir parameter objects (stored separately to facilitate settings file reference):
         self.KGU_param = reservoir_param()
         self.ITT_param = reservoir_param()
         self.KA_param = reservoir_param()
@@ -68,159 +68,203 @@ class model_zambezi:
             
             # Specific parameter construct is used in instantiation
             self.catchment_dict[variable_name] = catchment(self.catchment_param_dict[catch_param_name])
-        
-        # create reservoirs
-        # KAFUE GORGE UPPER reservoir
+
+        ###################
+        # CREATE RESERVOIRS
+        ###################
+        # each of the 5 existing reservoirs is created here
+
+        # 1. KAFUE GORGE UPPER (KGU) reservoir
         self.KafueGorgeUpper = lake("kafuegorgeupper") # creating a new object from corresponding lake class
+        # 2. ITEZHITEZHI (ITT) reservoir
+        self.Itezhitezhi = lake("itezhitezhi")
+        # 3. KARIBA (KA) reservoir
+        self.Kariba = lake("kariba")
+        # 4. CAHORA BASSA (CB) reservoir
+        self.CahoraBassa = lake("cahorabassa")
+        # 5. KAFUE GORGE LOWER reservoir
+        self.KafueGorgeLower = lake("kafuegorgelower")
+
+        # Add reservoir evaporation rates
+        # 1 KGU
         self.KafueGorgeUpper.setEvap(1) # evaporation data: 0 = no evaporation, 1 = load evaporation from file, 2 = activate function
         self.KGU_param.evap_rates.filename = "../data/evap_KG_KF.txt"
         self.KGU_param.evap_rates.row = self.T # setting # of rows as simulation period (12) for file reading
         self.KafueGorgeUpper.setEvapRates(self.KGU_param.evap_rates)
-        self.KGU_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeUpper.txt" # [m m2 m3]
-        self.KGU_param.lsv_rel.row = 3 
-        self.KGU_param.lsv_rel.col = 22 
-        self.KafueGorgeUpper.setLSV_Rel(self.KGU_param.lsv_rel)
-        self.KGU_param.rating_curve.filename = "../data/min_max_release_KafueGorgeUpper.txt" #  [m m3/s m3/s] # 
-        self.KGU_param.rating_curve.row = 3
-        self.KGU_param.rating_curve.col = 18
-        self.KafueGorgeUpper.setRatCurve(self.KGU_param.rating_curve)
-        self.KGU_param.tailwater.filename = "../data/tailwater_rating_KafueGorgeUpper.txt" # [m3/s m] = [Discharge Tailwater Level]
-        self.KGU_param.tailwater.row = 2
-        self.KGU_param.tailwater.col = 7
-        self.KafueGorgeUpper.setTailwater(self.KGU_param.tailwater)
-        self.KGU_param.minEnvFlow.filename = "../data/MEF_KafueGorgeUpper.txt" # [m^3/sec]
-        self.KGU_param.minEnvFlow.row = self.T
-        self.KafueGorgeUpper.setMEF(self.KGU_param.minEnvFlow)
-        self.KafueGorgeUpper.setInitCond(self.KGU_param.initCond)
-
-        # ITEZHITEZHI reservoir
-        self.Itezhitezhi = lake("itezhitezhi")
+        # 2 ITT
         self.Itezhitezhi.setEvap(1)
         self.ITT_param.evap_rates.filename = "../data/evap_ITT.txt"
         self.ITT_param.evap_rates.row = self.T
         self.Itezhitezhi.setEvapRates(self.ITT_param.evap_rates)
-        self.ITT_param.lsv_rel.filename = "../data/lsv_rel_Itezhitezhi.txt"
-        self.ITT_param.lsv_rel.row = 3 
-        self.ITT_param.lsv_rel.col = 19 # 
-        self.Itezhitezhi.setLSV_Rel(self.ITT_param.lsv_rel)
-        self.ITT_param.rating_curve.filename = "../data/min_max_release_Itezhitezhi.txt"
-        self.ITT_param.rating_curve.row = 3
-        self.ITT_param.rating_curve.col = 43
-        self.Itezhitezhi.setRatCurve(self.ITT_param.rating_curve)
-        self.ITT_param.tailwater.filename = "../data/tailwater_rating_Itezhitezhi.txt"
-        self.ITT_param.tailwater.row = 2
-        self.ITT_param.tailwater.col = 10
-        self.Itezhitezhi.setTailwater(self.ITT_param.tailwater)
-        self.ITT_param.minEnvFlow.filename = "../data/MEF_Itezhitezhi.txt"
-        self.ITT_param.minEnvFlow.row = self.T
-        self.Itezhitezhi.setMEF(self.ITT_param.minEnvFlow)
-        self.Itezhitezhi.setInitCond(self.ITT_param.initCond)
-
-        # KARIBA reservoir
-        self.Kariba = lake("kariba")
+        # 3 KA
         self.Kariba.setEvap(1)
         self.KA_param.evap_rates.filename = "../data/evap_KA.txt"
         self.KA_param.evap_rates.row = self.T
         self.Kariba.setEvapRates(self.KA_param.evap_rates)
-        self.KA_param.lsv_rel.filename = "../data/lsv_rel_Kariba.txt" 
-        self.KA_param.lsv_rel.row = 3
-        self.KA_param.lsv_rel.col = 16 
-        self.Kariba.setLSV_Rel(self.KA_param.lsv_rel)
-        self.KA_param.rating_curve.filename = "../data/min_max_release_Kariba.txt" 
-        self.KA_param.rating_curve.row = 3
-        self.KA_param.rating_curve.col = 11
-        self.Kariba.setRatCurve(self.KA_param.rating_curve)
-        self.KA_param.rule_curve.filename = "../data/rule_curve_Kariba.txt"
-        self.KA_param.rule_curve.row = 3
-        self.KA_param.rule_curve.col = 12
-        self.Kariba.setRuleCurve(self.KA_param.rule_curve)
-        self.KA_param.tailwater.filename = "../data/tailwater_rating_Kariba.txt" 
-        self.KA_param.tailwater.row = 2
-        self.KA_param.tailwater.col = 9
-        self.Kariba.setTailwater(self.KA_param.tailwater)
-        self.KA_param.minEnvFlow.filename = "../data/MEF_Kariba.txt" 
-        self.KA_param.minEnvFlow.row = self.T
-        self.Kariba.setMEF(self.KA_param.minEnvFlow)
-        self.Kariba.setInitCond(self.KA_param.initCond)
-
-        # CahoraBassa reservoir
-        self.CahoraBassa = lake("cahorabassa")
+        # 4 CB
         self.CahoraBassa.setEvap(1)
         self.CB_param.evap_rates.filename = "../data/evap_CB.txt"
         self.CB_param.evap_rates.row = self.T
         self.CahoraBassa.setEvapRates(self.CB_param.evap_rates)
-        self.CB_param.lsv_rel.filename = "../data/lsv_rel_CahoraBassa.txt"
-        self.CB_param.lsv_rel.row = 3
-        self.CB_param.lsv_rel.col = 10 # 
-        self.CahoraBassa.setLSV_Rel(self.CB_param.lsv_rel)
-        self.CB_param.rating_curve.filename = "../data/min_max_release_CahoraBassa.txt"
-        self.CB_param.rating_curve.row = 3
-        self.CB_param.rating_curve.col = 10
-        self.CahoraBassa.setRatCurve(self.CB_param.rating_curve)
-        self.CB_param.rule_curve.filename = "../data/rule_curve_CahoraBassa.txt" # [time(month) month-end level(m) month-end storage(m3)] 
-        self.CB_param.rule_curve.row = 3
-        self.CB_param.rule_curve.col = 12
-        self.CahoraBassa.setRuleCurve(self.CB_param.rule_curve)
-        self.CB_param.tailwater.filename = "../data/tailwater_rating_CahoraBassa.txt" 
-        self.CB_param.tailwater.row = 2
-        self.CB_param.tailwater.col = 9
-        self.CahoraBassa.setTailwater(self.CB_param.tailwater)
-        self.CB_param.minEnvFlow.filename = "../data/MEF_CahoraBassa.txt"
-        self.CB_param.minEnvFlow.row = self.T
-        self.CahoraBassa.setMEF(self.CB_param.minEnvFlow)
-        self.CahoraBassa.setInitCond(self.CB_param.initCond)
-
-        # KAFUE GORGE Lower reservoir
-        self.KafueGorgeLower = lake("kafuegorgelower")
+        # 5 KGL
         self.KafueGorgeLower.setEvap(1)
         self.KGL_param.evap_rates.filename = "../data/evap_KGL.txt"
         self.KGL_param.evap_rates.row = self.T
         self.KafueGorgeLower.setEvapRates(self.KGL_param.evap_rates)
-        self.KGL_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeLower.txt" 
+
+        # Add reservoir level to storage relation
+        # 1 KGU
+        self.KGU_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeUpper.txt"  # [m m2 m3]
+        self.KGU_param.lsv_rel.row = 3
+        self.KGU_param.lsv_rel.col = 22
+        self.KafueGorgeUpper.setLSV_Rel(self.KGU_param.lsv_rel)
+        # 2 ITT
+        self.ITT_param.lsv_rel.filename = "../data/lsv_rel_Itezhitezhi.txt"
+        self.ITT_param.lsv_rel.row = 3 
+        self.ITT_param.lsv_rel.col = 19 # 
+        self.Itezhitezhi.setLSV_Rel(self.ITT_param.lsv_rel)
+        # 3 KA
+        self.KA_param.lsv_rel.filename = "../data/lsv_rel_Kariba.txt"
+        self.KA_param.lsv_rel.row = 3
+        self.KA_param.lsv_rel.col = 16
+        self.Kariba.setLSV_Rel(self.KA_param.lsv_rel)
+        # 4 CB
+        self.CB_param.lsv_rel.filename = "../data/lsv_rel_CahoraBassa.txt"
+        self.CB_param.lsv_rel.row = 3
+        self.CB_param.lsv_rel.col = 10 #
+        self.CahoraBassa.setLSV_Rel(self.CB_param.lsv_rel)
+        # 5 KGL
+        self.KGL_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeLower.txt"
         self.KGL_param.lsv_rel.row = 3
-        self.KGL_param.lsv_rel.col = 10 
+        self.KGL_param.lsv_rel.col = 10
         self.KafueGorgeLower.setLSV_Rel(self.KGL_param.lsv_rel)
-        self.KGL_param.rating_curve_minmax.filename = "../data/min_max_release_KafueGorgeLower.txt" 
+
+        # Add the rating curve of the reservoirs
+        # 1 KGU
+        self.KGU_param.rating_curve.filename = "../data/min_max_release_KafueGorgeUpper.txt" #  [m m3/s m3/s] #
+        self.KGU_param.rating_curve.row = 3
+        self.KGU_param.rating_curve.col = 18
+        self.KafueGorgeUpper.setRatCurve(self.KGU_param.rating_curve)
+        # 2 ITT
+        self.ITT_param.rating_curve.filename = "../data/min_max_release_Itezhitezhi.txt"
+        self.ITT_param.rating_curve.row = 3
+        self.ITT_param.rating_curve.col = 43
+        self.Itezhitezhi.setRatCurve(self.ITT_param.rating_curve)
+        # 3 KA
+        self.KA_param.rating_curve.filename = "../data/min_max_release_Kariba.txt"
+        self.KA_param.rating_curve.row = 3
+        self.KA_param.rating_curve.col = 11
+        self.Kariba.setRatCurve(self.KA_param.rating_curve)
+        # 4 CB
+        self.CB_param.rating_curve.filename = "../data/min_max_release_CahoraBassa.txt"
+        self.CB_param.rating_curve.row = 3
+        self.CB_param.rating_curve.col = 10
+        self.CahoraBassa.setRatCurve(self.CB_param.rating_curve)
+        # 5 KGL
+        self.KGL_param.rating_curve_minmax.filename = "../data/min_max_release_KafueGorgeLower.txt"
         self.KGL_param.rating_curve.row = 1
         self.KGL_param.rating_curve.col = 3
         self.KafueGorgeLower.setRatCurve_MinMax(self.KGL_param.rating_curve_minmax)
+
+        # Add the rule curve of the reservoir
+        # 3 KA
+        self.KA_param.rule_curve.filename = "../data/rule_curve_Kariba.txt"
+        self.KA_param.rule_curve.row = 3
+        self.KA_param.rule_curve.col = 12
+        self.Kariba.setRuleCurve(self.KA_param.rule_curve)
+        # 4
+        self.CB_param.rule_curve.filename = "../data/rule_curve_CahoraBassa.txt" # [time(month) month-end level(m) month-end storage(m3)]
+        self.CB_param.rule_curve.row = 3
+        self.CB_param.rule_curve.col = 12
+        self.CahoraBassa.setRuleCurve(self.CB_param.rule_curve)
+
+        # Add the tailwater rating of the reservoirs
+        # 1 KGU
+        self.KGU_param.tailwater.filename = "../data/tailwater_rating_KafueGorgeUpper.txt"  # [m3/s m] = [Discharge Tailwater Level]
+        self.KGU_param.tailwater.row = 2
+        self.KGU_param.tailwater.col = 7
+        self.KafueGorgeUpper.setTailwater(self.KGU_param.tailwater)
+        # 2 ITT
+        self.ITT_param.tailwater.filename = "../data/tailwater_rating_Itezhitezhi.txt"
+        self.ITT_param.tailwater.row = 2
+        self.ITT_param.tailwater.col = 10
+        self.Itezhitezhi.setTailwater(self.ITT_param.tailwater)
+        # 3 KA
+        self.KA_param.tailwater.filename = "../data/tailwater_rating_Kariba.txt"
+        self.KA_param.tailwater.row = 2
+        self.KA_param.tailwater.col = 9
+        self.Kariba.setTailwater(self.KA_param.tailwater)
+        # 4 CB
+        self.CB_param.tailwater.filename = "../data/tailwater_rating_CahoraBassa.txt"
+        self.CB_param.tailwater.row = 2
+        self.CB_param.tailwater.col = 9
+        self.CahoraBassa.setTailwater(self.CB_param.tailwater)
+        # 5 KBL
         self.KGL_param.tailwater.filename = "../data/tailwater_rating_KafueGorgeLower.txt"
         self.KGL_param.tailwater.row = 2
         self.KGL_param.tailwater.col = 8
         self.KafueGorgeLower.setTailwater(self.KGL_param.tailwater)
+
+        # Add the minimum environmental flow of the reservoirs
+        # 1 KGU
+        self.KGU_param.minEnvFlow.filename = "../data/MEF_KafueGorgeUpper.txt" # [m^3/sec]
+        self.KGU_param.minEnvFlow.row = self.T
+        self.KafueGorgeUpper.setMEF(self.KGU_param.minEnvFlow)
+        self.KafueGorgeUpper.setInitCond(self.KGU_param.initCond)
+        # 2 ITT
+        self.ITT_param.minEnvFlow.filename = "../data/MEF_Itezhitezhi.txt"
+        self.ITT_param.minEnvFlow.row = self.T
+        self.Itezhitezhi.setMEF(self.ITT_param.minEnvFlow)
+        self.Itezhitezhi.setInitCond(self.ITT_param.initCond)
+        # 3 KA
+        self.KA_param.minEnvFlow.filename = "../data/MEF_Kariba.txt"
+        self.KA_param.minEnvFlow.row = self.T
+        self.Kariba.setMEF(self.KA_param.minEnvFlow)
+        self.Kariba.setInitCond(self.KA_param.initCond)
+        # 4 CB
+        self.CB_param.minEnvFlow.filename = "../data/MEF_CahoraBassa.txt"
+        self.CB_param.minEnvFlow.row = self.T
+        self.CahoraBassa.setMEF(self.CB_param.minEnvFlow)
+        self.CahoraBassa.setInitCond(self.CB_param.initCond)
+        # 5 KGL
         self.KGL_param.minEnvFlow.filename = "../data/MEF_KafueGorgeLower.txt"
         self.KGL_param.minEnvFlow.row = self.T
         self.KafueGorgeLower.setMEF(self.KGL_param.minEnvFlow)
         self.KafueGorgeLower.setInitCond(self.KGL_param.initCond)
 
-        # Below the policy objects (from the SMASH library) are generated
-        # this model requires two policy functions (to be used in seperate
-        # places in the simulate function) which are the "release" and
-        # "irrigation" policies. While the former is meant to be a generic
-        # approximator such as RBF and ANN (to be optimized) the latter
-        # the latter has a simple structure specified in the
-        # alternative_policy_structures script. Firstly, a Policy object is
-        # instantiated which is meant to own all policy functions within a
-        # model (see the documentation of SMASH). Then, two separate policies
-        # are added on to the overarching_policy.
+        # Add the target hydropower production for each reservoir
+        self.tp_Kgu = utils.loadVector("../data/KGUprod.txt", self.T)  # Kafue Gorge Upper target production
+        self.tp_Itt = utils.loadVector("../data/ITTprod.txt", self.T)  # Itezhitezhi target production
+        self.tp_Ka = utils.loadVector("../data/KAprod.txt", self.T)  # Kariba target production
+        self.tp_Cb = utils.loadVector("../data/CBprod.txt", self.T)  # Cahora Bassa target production
+        self.tp_Kgl = utils.loadVector("../data/KGLprod.txt", self.T)  # Kafue Gorge Lower target production
+
+        # Load Minimum Environmental Flow requirement upstream of Victoria Falls
+        self.MEF_VictoriaFalls = utils.loadVector("../data/MEF_VictoriaFalls.txt", self.T)  # [m^3/sec]
+
+        # Load Minimum Environmental Flow requirement in the Zambezi Delta for the months of February and March
+        self.qDelta = utils.loadVector("../data/MEF_Delta.txt", self.T)  # [m^3/sec]
+
+        ############################
+        # POLICY OBJECTS GENERATION
+        ############################
+
+        ''' Below the policy objects (from the SMASH library) are generated this model requires two policy functions (to be 
+        used in separate places in the simulate function) which are the "release" and "irrigation" policies. While the 
+        former is meant to be a generic approximator such as RBF and ANN (to be optimized), the latter has a simple 
+        structure specified in the alternative_policy_structures script. Firstly, a Policy object is instantiated which 
+        is meant to own all policy functions within a model (see the documentation of SMASH). Then, two separate 
+        policies are added on to the overarching_policy. '''
        
         self.overarching_policy = Policy()
 
-        self.overarching_policy.add_policy_function(name="irrigation",
-            type="user_specified", n_inputs=4, n_outputs=1,
-            class_name="irrigation_policy", n_irr_districts=8)
-        
+        # Irrigation policy generation
+        self.overarching_policy.add_policy_function(name="irrigation", type="user_specified", n_inputs=4, n_outputs=1,
+                                                    class_name="irrigation_policy", n_irr_districts=8)
+
+        # Irrigation policy min max parameter values
         self.overarching_policy.functions["irrigation"].setMinInput(self.irr_param.mParam)
         self.overarching_policy.functions["irrigation"].setMaxInput(self.irr_param.MParam)
-
-        self.overarching_policy.add_policy_function(name="release",
-            type="ncRBF",n_inputs=self.p_param.policyInput, n_outputs=self.p_param.policyOutput,
-            n_structures=self.p_param.policyStr)
-
-        self.overarching_policy.functions["release"].setMaxInput(self.p_param.MIn)
-        self.overarching_policy.functions["release"].setMaxOutput(self.p_param.MOut)
-        self.overarching_policy.functions["release"].setMinInput(self.p_param.mIn)
-        self.overarching_policy.functions["release"].setMinOutput(self.p_param.mOut)
 
         # Load irrigation demand vectors (stored in a dictionary)
         irr_naming_list = range(2, 10, 1)
@@ -231,34 +275,32 @@ class model_zambezi:
             file_name = "../data/IrrDemand" + str(id) + ".txt"
             self.irr_demand_dict[variable_name] = utils.loadVector(file_name, self.T)
 
+        # Setting the irrigation district index with references to the position of the first parameter (hdg) of each
+        # irrigation district in the decision variables vector.
+        self.irr_district_idx = utils.loadVector("../data/IrrDistrict_idx.txt", self.irr_param.num_irr)
 
-        self.irr_district_idx = utils.loadVector("../data/IrrDistrict_idx.txt", self.irr_param.num_irr) # index referring to the position
-                                                                                                           # of the first parameter (hdg) of
-                                                                                                           # each irrigation district in the
-                                                                                                           # decision variables vector
+        # Release policy generation
+        self.overarching_policy.add_policy_function(name="release",
+            type="ncRBF",n_inputs=self.p_param.policyInput, n_outputs=self.p_param.policyOutput,
+            n_structures=self.p_param.policyStr)
 
-        # Target hydropower production for each reservoir
-        self.tp_Itt = utils.loadVector("../data/ITTprod.txt", self.T) # Itezhitezhi target production
-        self.tp_Kgu = utils.loadVector("../data/KGUprod.txt", self.T) # Kafue Gorge Upper target production
-        self.tp_Ka = utils.loadVector("../data/KAprod.txt", self.T) # Kariba target production
-        self.tp_Cb = utils.loadVector("../data/CBprod.txt", self.T) # Cahora Bassa target production
-        self.tp_Kgl = utils.loadVector("../data/KGLprod.txt", self.T) # Kafue Gorge Lower target production
-        
-        # Load Minimum Environmental Flow requirement upstream of Victoria Falls
-        self.MEF_VictoriaFalls = utils.loadVector("../data/MEF_VictoriaFalls.txt", self.T) # [m^3/sec]
+        # Release policy min max parameter values
+        self.overarching_policy.functions["release"].setMaxInput(self.p_param.MIn)
+        self.overarching_policy.functions["release"].setMaxOutput(self.p_param.MOut)
+        self.overarching_policy.functions["release"].setMinInput(self.p_param.mIn)
+        self.overarching_policy.functions["release"].setMinOutput(self.p_param.mOut)
 
-        # Load Minimum Environmental Flow requirement in the Zambezi Delta for the months of February and March
-        self.qDelta = utils.loadVector("../data/MEF_Delta.txt", self.T) # [m^3/sec]
-
-    def getNobj(self):
+    def getNobj(self): # the number of objectives
         return self.Nobj
     
     def getNvar(self):
         return self.Nvar
 
     def evaluate(self, var):
-        """ Evaluate the KPI values based on the given input
-        data and policy parameter configuration.
+        """ Evaluate the KPI values based on the given input data and policy parameter configuration.
+        Evaluate function serves as the behaviour generating machine which outputs KPIs of the model.
+        Evaluate does so by means of calling the simulate function which handles the state transformation via
+        mass-balance equation calculations iteratively.
 
         Parameters
         ----------
@@ -273,8 +315,10 @@ class model_zambezi:
         the mode (simulation or optimization)
         """
 
+        # Create the objectives as an empty array
         obj = np.empty(0)
 
+        #
         self.overarching_policy.assign_free_parameters(var)
 
         if (self.Nsim < 2): # single simulation
@@ -557,6 +601,7 @@ class model_zambezi:
             input = np.empty(0)
             uu = np.empty(0)
 
+        # TODO: check if correct
         # NOT Super clear if below implementation is correct. Check!!!!
         # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) // 
 
@@ -568,6 +613,7 @@ class model_zambezi:
         return JJ
 
     # Deficit
+    # TODO: unused method
     def g_deficit(self, q, w):
 
         d = w - q
