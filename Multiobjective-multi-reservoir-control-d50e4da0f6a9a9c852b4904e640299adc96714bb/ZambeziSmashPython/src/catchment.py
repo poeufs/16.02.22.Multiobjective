@@ -1,14 +1,15 @@
 # Catchment class
 
-from utils import utils, myFile
+from utils import utils, Myfile
 
-class catchment_param:
+
+class CatchmentParam:
     def __init__(self) -> None:
         self.CM = int(0)
-        self.inflow_file = myFile() # myFile type from utils!
+        self.inflow_file = Myfile()  # myFile type from utils!
 
 
-class catchment:
+class Catchment:
     def __init__(self, pCM):
         cModel = pCM.CM
         self.inflow = utils.loadVector(pCM.inflow_file.filename, pCM.inflow_file.row)
@@ -17,6 +18,5 @@ class catchment:
             self.inflow = utils.loadVector(pCM.inflow_file.filename, pCM.inflow_file.row)
 
     def getInflow(self, pt):
-
         q = float(self.inflow[pt])
         return q
