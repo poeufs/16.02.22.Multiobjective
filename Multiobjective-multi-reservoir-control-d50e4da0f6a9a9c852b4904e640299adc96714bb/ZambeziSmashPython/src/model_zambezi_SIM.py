@@ -426,16 +426,16 @@ class model_zambezi:
             moy[t] = (self.initMonth + t - 1) % (self.T) + 1
 
             # inflows
-            q_Itt = self.catchment_dict["IttCatchment"].getInflow(t)  # Itezhitezhi inflow @ Kafue Hook Bridge #
-            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].getInflow(
+            q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)  # Itezhitezhi inflow @ Kafue Hook Bridge #
+            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(
                 t)  # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper) #
-            q_KaLat = self.catchment_dict["KaCatchment"].getInflow(
+            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(
                 t)  # Kariba inflow @ Victoria Falls increased by +10% #
-            q_Cb = self.catchment_dict["CbCatchment"].getInflow(
+            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(
                 t)  # Cahora Bassa inflow (Luangwa and other tributaries) #
-            q_Cuando = self.catchment_dict["CuandoCatchment"].getInflow(t)  # Kariba inflow @ Cuando river #
-            q_Shire = self.catchment_dict["ShireCatchment"].getInflow(t)  # Shire discharge (upstream of the Delta) #
-            q_Bg = self.catchment_dict["BgCatchment"].getInflow(
+            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)  # Kariba inflow @ Cuando river #
+            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)  # Shire discharge (upstream of the Delta) #
+            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(
                 t)  # Kariba inflow @ Victoria Falls increased by +10% #
 
             qTotIN = q_Itt + q_KafueFlats + q_KaLat + q_Cb + q_Cuando + q_Shire + q_Bg  # total inflows

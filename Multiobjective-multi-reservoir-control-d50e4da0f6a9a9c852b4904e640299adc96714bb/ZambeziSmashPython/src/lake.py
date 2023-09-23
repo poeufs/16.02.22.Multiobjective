@@ -1,22 +1,22 @@
 # Lake class and ReservoirParam struct (class in Python)
 # encapsulating the parameters of the reservoir
 
-from utils import Myfile, utils
+from utils import MyFile, utils
 import numpy as np
 
 
 class ReservoirParam:
     def __init__(self):
         self.EV = int()
-        self.evap_rates = Myfile()
-        self.rating_curve = Myfile()
-        self.rating_curve_minmax = Myfile()
-        self.rule_curve = Myfile()
-        self.lsv_rel = Myfile()
+        self.evap_rates = MyFile()
+        self.rating_curve = MyFile()
+        self.rating_curve_minmax = MyFile()
+        self.rule_curve = MyFile()
+        self.lsv_rel = MyFile()
         self.A = float()  # reservoir surface (assumed to be constant)
         self.initCond = float()
-        self.tailwater = Myfile()
-        self.minEnvFlow = Myfile()
+        self.tailwater = MyFile()
+        self.minEnvFlow = MyFile()
 
 
 class Lake:
