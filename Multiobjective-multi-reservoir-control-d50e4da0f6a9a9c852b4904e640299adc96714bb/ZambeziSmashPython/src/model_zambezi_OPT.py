@@ -262,11 +262,11 @@ class model_zambezi:
 
         # Irrigation policy generation
         self.overarching_policy.add_policy_function(name="irrigation", type="user_specified", n_inputs=4, n_outputs=1,
-                                                    class_name="irrigation_policy", n_irr_districts=8)
+                                                    class_name="IrrigationPolicy", n_irr_districts=8)
 
         # Irrigation policy min max parameter values
-        self.overarching_policy.functions["irrigation"].setMinInput(self.irr_param.mParam)
-        self.overarching_policy.functions["irrigation"].setMaxInput(self.irr_param.MParam)
+        self.overarching_policy.functions["irrigation"].set_min_input(self.irr_param.mParam)
+        self.overarching_policy.functions["irrigation"].set_max_input(self.irr_param.MParam)
 
         # Load irrigation demand vectors (stored in a dictionary)
         irr_naming_list = range(2, 10, 1)
@@ -288,9 +288,9 @@ class model_zambezi:
                                                     n_structures=self.p_param.policyStr)
 
         # Release policy min max parameter values
-        self.overarching_policy.functions["release"].setMaxInput(self.p_param.MIn)
+        self.overarching_policy.functions["release"].set_max_input(self.p_param.MIn)
         self.overarching_policy.functions["release"].setMaxOutput(self.p_param.MOut)
-        self.overarching_policy.functions["release"].setMinInput(self.p_param.mIn)
+        self.overarching_policy.functions["release"].set_min_input(self.p_param.mIn)
         self.overarching_policy.functions["release"].setMinOutput(self.p_param.mOut)
 
     def getNobj(self):  # the number of objectives is set in the settings_file (3 in 09.23)
@@ -349,8 +349,8 @@ class model_zambezi:
             obj = np.append(obj, np.percentile(Jirr_def, 99))
 
         # re-initialize policy parameters for further runs in the optimization mode
-        self.overarching_policy.functions["release"].clearParameters()
-        self.overarching_policy.functions["irrigation"].clearParameters()
+        self.overarching_policy.functions["release"].clear_parameters()
+        self.overarching_policy.functions["irrigation"].clear_parameters()
 
         return list(obj)
 
@@ -460,7 +460,7 @@ class model_zambezi:
             # add the inputs for the function approximator (NN, RBF) black-box policy
             input = np.array([s_itt[t], s_kgu[t], s_ka[t], s_cb[t], s_kgl[t], moy[t], qTotIN_1])
 
-            uu = self.overarching_policy.functions["release"].get_NormOutput(input)  # Policy function is called here!
+            uu = self.overarching_policy.functions["release"].get_norm_output(input)  # Policy function is called here!
             u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)  # decision per reservoir assigned
 
             # daily integration and assignment of monthly storage and release values

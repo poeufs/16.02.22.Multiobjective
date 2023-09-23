@@ -1,7 +1,8 @@
 # Alternative policy structures
 import numpy as np
 
-class irrigation_policy:
+
+class IrrigationPolicy:
     """irrigation policy class represents different irrigation policies for all the irrigation districts
     Contains the class that allows user to specify desired policy function"""
 
@@ -13,41 +14,43 @@ class irrigation_policy:
         """
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
-        self.I = kw_dict['n_irr_districts'] #number of irrigation districts. Defined in model_zambezi, currently 8
+        self.I = kw_dict['n_irr_districts']  # number of irrigation districts. Defined in model_zambezi, currently 8
         self.irr_parab_param = np.empty(0)
         self.irr_input_min = np.empty(0)
         self.irr_input_max = np.empty(0)
 
-    def setParameters(self, IrrTheta):
+    def set_parameters(self, IrrTheta):
         self.irr_parab_param = IrrTheta
 
-    def clearParameters(self):
+    def clear_parameters(self):
         self.irr_parab_param = np.empty(0)
 
     def get_output(self, input):
         input_inflow, input_w, irr_district, irr_district_idx = tuple(input)
         y = float()
         hdg, hdg_dn, m = tuple(3 * [float()])
-        start_param_idx = int(irr_district_idx[irr_district-2]) # [irr_district-2] need to be changed when additional irrigation districts are added
+        start_param_idx = int(irr_district_idx[
+                                  irr_district - 2])  # [irr_district-2] need to be changed when additional irrigation districts are added
 
-        hdg = self.irr_parab_param[start_param_idx] #hdg is the first policy parameter for irrigation disctrict i (=threshold)
-        m = self.irr_parab_param[start_param_idx+1]
+        hdg = self.irr_parab_param[
+            start_param_idx]  # hdg is the first policy parameter for irrigation disctrict i (=threshold)
+        m = self.irr_parab_param[start_param_idx + 1]
 
-        hdg_dn = hdg*( self.irr_input_max[irr_district-2] - self.irr_input_min[irr_district-2] )\
-                 + self.irr_input_min[irr_district-2] #hdg_dn = denormalized hdg
-        
+        hdg_dn = hdg * (self.irr_input_max[irr_district - 2] - self.irr_input_min[irr_district - 2]) \
+                 + self.irr_input_min[irr_district - 2]  # hdg_dn = denormalized hdg
+
         if input_inflow <= hdg_dn:
-            y = min(input_inflow,input_w*(pow(input_inflow/hdg_dn,m)))
+            y = min(input_inflow, input_w * (pow(input_inflow / hdg_dn, m)))
         else:
-            y = min(input_inflow,input_w)
+            y = min(input_inflow, input_w)
 
         return y
-    
-    def getFreeParameterNumber(self):
+
+    def get_free_parameter_number(self):
         return 2 * self.I
 
-    def setMinInput(self, pV):
+    def set_min_input(self, pV):
         self.irr_input_min = np.array(pV)
 
-    def setMaxInput(self, pV):
+    def set_max_input(self, pV):
         self.irr_input_max = np.array(pV)

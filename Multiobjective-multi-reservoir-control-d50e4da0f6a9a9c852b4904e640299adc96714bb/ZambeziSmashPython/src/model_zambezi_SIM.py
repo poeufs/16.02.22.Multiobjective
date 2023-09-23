@@ -210,19 +210,19 @@ class model_zambezi:
 
         self.overarching_policy.add_policy_function(name="irrigation",
                                                     type="user_specified", n_inputs=4, n_outputs=1,
-                                                    class_name="irrigation_policy", n_irr_districts=8)
+                                                    class_name="IrrigationPolicy", n_irr_districts=8)
 
-        self.overarching_policy.functions["irrigation"].setMinInput(self.irr_param.mParam)
-        self.overarching_policy.functions["irrigation"].setMaxInput(self.irr_param.MParam)
+        self.overarching_policy.functions["irrigation"].set_min_input(self.irr_param.mParam)
+        self.overarching_policy.functions["irrigation"].set_max_input(self.irr_param.MParam)
 
         self.overarching_policy.add_policy_function(name="release",
                                                     type="ncRBF", n_inputs=self.p_param.policyInput,
                                                     n_outputs=self.p_param.policyOutput,
                                                     n_structures=self.p_param.policyStr)
 
-        self.overarching_policy.functions["release"].setMaxInput(self.p_param.MIn)
+        self.overarching_policy.functions["release"].set_max_input(self.p_param.MIn)
         self.overarching_policy.functions["release"].setMaxOutput(self.p_param.MOut)
-        self.overarching_policy.functions["release"].setMinInput(self.p_param.mIn)
+        self.overarching_policy.functions["release"].set_min_input(self.p_param.mIn)
         self.overarching_policy.functions["release"].setMinOutput(self.p_param.mOut)
 
         # Load irrigation demand vectors (stored in a dictionary)
@@ -309,8 +309,8 @@ class model_zambezi:
         objectives.close()
 
         # re-initialize policy parameters for further runs in the optimization mode
-        self.overarching_policy.functions["release"].clearParameters()
-        self.overarching_policy.functions["irrigation"].clearParameters()
+        self.overarching_policy.functions["release"].clear_parameters()
+        self.overarching_policy.functions["irrigation"].clear_parameters()
 
     def simulate(self):
         """ Mathematical simulation over the specified simulation
@@ -444,7 +444,7 @@ class model_zambezi:
             input = np.array([s_itt[t], s_kgu[t], s_ka[t], s_cb[t], s_kgl[t], moy[t], qTotIN_1])
 
             # call the POLICY function!
-            uu = self.overarching_policy.functions["release"].get_NormOutput(input)
+            uu = self.overarching_policy.functions["release"].get_norm_output(input)
             # decision per reservoir assigned
             u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)
 
