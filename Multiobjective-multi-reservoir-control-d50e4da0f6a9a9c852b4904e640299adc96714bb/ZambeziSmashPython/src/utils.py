@@ -3,7 +3,8 @@
 
 import numpy as np
 
-class myFile:
+
+class MyFile:
     """
     A class to represent a matrix to-be-read from an external file.
 
@@ -16,10 +17,12 @@ class myFile:
     col : int
         Specified number of columns of the file
     """
+
     def __init__(self):
         self.filename = None
         self.row = None
         self.col = None
+
 
 class utils:
     """
@@ -46,7 +49,7 @@ class utils:
             The array as read from the specified external file. Elements are
             of 'float' type 
         """
-        
+
         output = np.empty(0)
         try:
             with open(file_name, "r") as input:
@@ -84,14 +87,14 @@ class utils:
             The array as read from the specified external file. Elements are
             of 'int' type 
         """
-        
+
         output = np.empty(0)
         try:
             with open(file_name, "r") as input:
                 try:
                     for i, line in enumerate(input):
                         output = np.append(output, int(float(line.strip())))
-                        if (i == l-1):
+                        if (i == l - 1):
                             break
                 except:
                     print("Unable to iterate")
@@ -99,7 +102,6 @@ class utils:
             print("Unable to open file" + "   " + file_name)
 
         return output
-
 
     @staticmethod
     def loadMatrix(file_name, row, col):
@@ -122,7 +124,7 @@ class utils:
             The matrix as read from the specified external file. Elements are
             of 'float' type 
         """
-        
+
         output = np.empty((row, col))
         try:
             with open(file_name, "r") as input:
@@ -158,15 +160,15 @@ class utils:
         dim = X.size - 1
 
         # extreme cases (x<X(0) or x>X(end): extrapolation
-        if(x <= X[0]):
-            y = (Y[1] - Y[0]) / (X[1] - X[0]) * (x - X[0]) + Y[0] 
+        if (x <= X[0]):
+            y = (Y[1] - Y[0]) / (X[1] - X[0]) * (x - X[0]) + Y[0]
             return y
-        
-        if(x >= X[dim]):
-            y = Y[dim] + (Y[dim] - Y[dim-1]) / (X[dim] - X[dim-1]) * \
+
+        if (x >= X[dim]):
+            y = Y[dim] + (Y[dim] - Y[dim - 1]) / (X[dim] - X[dim - 1]) * \
                 (x - X[dim])
             return y
-        
+
         # otherwise
         # [ x - X(A) ] / [ X(B) - x ] = [ y - Y(A) ] / [ Y(B) - y ]
         # y = [ Y(B)*x - X(A)*Y(B) + X(B)*Y(A) - x*Y(A) ] / [ X(B) - X(A) ]
@@ -178,21 +180,21 @@ class utils:
             if (X[i] == x):
                 y = Y[i]
                 return y
-            
-            delta = abs( X[i] - x ) 
-            if(delta < min_d):
-                min_d = delta 
+
+            delta = abs(X[i] - x)
+            if (delta < min_d):
+                min_d = delta
                 j = i
-        
+
         k = int()
-        if(X[j] < x):
+        if (X[j] < x):
             k = j
         else:
-            k = j-1
-        
-        a = (Y[k+1] - Y[k]) / (X[k+1] - X[k]) 
-        b = Y[k] - a*X[k]
-        y = a*x + b
+            k = j - 1
+
+        a = (Y[k + 1] - Y[k]) / (X[k + 1] - X[k])
+        b = Y[k] - a * X[k]
+        y = a * x + b
 
         return y
 
@@ -218,7 +220,7 @@ class utils:
 
         Y = np.empty(0)
         for i in range(X.size):
-            z = ( X[i] - m[i] ) / ( M[i] - m[i] )
+            z = (X[i] - m[i]) / (M[i] - m[i])
             Y = np.append(Y, z)
 
         return Y
@@ -245,7 +247,7 @@ class utils:
 
         Y = np.empty(0)
         for i in range(X.size):
-            z = X[i]*( M[i] - m[i] ) + m[i]
+            z = X[i] * (M[i] - m[i]) + m[i]
             Y = np.append(Y, z)
 
         return Y
@@ -272,7 +274,7 @@ class utils:
 
         Y = np.empty(0)
         for i in range(X.size):
-            z = ( X[i] - m[i] ) / ( s[i] )
+            z = (X[i] - m[i]) / (s[i])
             Y = np.append(Y, z)
 
         return Y
@@ -298,7 +300,7 @@ class utils:
         """
         Y = np.empty(0)
         for i in range(X.size):
-            z = X[i]*s[i] + m[i]
+            z = X[i] * s[i] + m[i]
             Y = np.append(Y, z)
 
         return Y

@@ -6,8 +6,8 @@
 # ===========================================================================
 
 # Importing model classes:
-from catchment import catchment, catchment_param
-from lake import reservoir_param, lake
+from catchment import Catchment, CatchmentParam
+from lake import ReservoirParam, Lake
 from utils import utils
 from smash import Policy
 
@@ -33,7 +33,7 @@ class model_zambezi:
         input data (flows etc.) as well as policy function hyper-parameters.
         """
 
-        # initialize parameter constructs for objects (policy and catchment)
+        # initialize parameter constructs for objects (policy and Catchment)
         # (has to be done before file reading)
 
         # initialize parameter constructs for to be created policy objects   
@@ -47,15 +47,15 @@ class model_zambezi:
 
         for catchment_name in catchment_list:
             catch_param_name = catchment_name + "_catch_param"
-            self.catchment_param_dict[catch_param_name] = catchment_param()
+            self.catchment_param_dict[catch_param_name] = CatchmentParam()
 
         # Reservoir parameter objects (stored seperately
         # to facilitate settings file reference):
-        self.KGU_param = reservoir_param()
-        self.ITT_param = reservoir_param()
-        self.KA_param = reservoir_param()
-        self.CB_param = reservoir_param()
-        self.KGL_param = reservoir_param()
+        self.KGU_param = ReservoirParam()
+        self.ITT_param = ReservoirParam()
+        self.KA_param = ReservoirParam()
+        self.CB_param = ReservoirParam()
+        self.KGL_param = ReservoirParam()
 
         # read the parameter values from either CSV or UI
         self.readFileSettings()
@@ -68,11 +68,11 @@ class model_zambezi:
             variable_name = catchment_name + "Catchment"
 
             # Specific parameter construct is used in instantiation
-            self.catchment_dict[variable_name] = catchment(self.catchment_param_dict[catch_param_name])
+            self.catchment_dict[variable_name] = Catchment(self.catchment_param_dict[catch_param_name])
 
         # create reservoirs
         # KAFUE GORGE UPPER reservoir
-        self.KafueGorgeUpper = lake("kafuegorgeupper")  # creating a new object from corresponding lake class
+        self.KafueGorgeUpper = Lake("kafuegorgeupper")  # creating a new object from corresponding Lake class
         self.KafueGorgeUpper.setEvap(
             1)  # evaporation data: 0 = no evaporation, 1 = load evaporation from file, 2 = activate function
         self.KGU_param.evap_rates.filename = "../data/evap_KG_KF.txt"
@@ -96,7 +96,7 @@ class model_zambezi:
         self.KafueGorgeUpper.setInitCond(self.KGU_param.initCond)
 
         # ITEZHITEZHI reservoir
-        self.Itezhitezhi = lake("itezhitezhi")
+        self.Itezhitezhi = Lake("itezhitezhi")
         self.Itezhitezhi.setEvap(1)
         self.ITT_param.evap_rates.filename = "../data/evap_ITT.txt"
         self.ITT_param.evap_rates.row = self.T
@@ -119,7 +119,7 @@ class model_zambezi:
         self.Itezhitezhi.setInitCond(self.ITT_param.initCond)
 
         # KARIBA reservoir
-        self.Kariba = lake("kariba")
+        self.Kariba = Lake("kariba")
         self.Kariba.setEvap(1)
         self.KA_param.evap_rates.filename = "../data/evap_KA.txt"
         self.KA_param.evap_rates.row = self.T
@@ -146,7 +146,7 @@ class model_zambezi:
         self.Kariba.setInitCond(self.KA_param.initCond)
 
         # CahoraBassa reservoir
-        self.CahoraBassa = lake("cahorabassa")
+        self.CahoraBassa = Lake("cahorabassa")
         self.CahoraBassa.setEvap(1)
         self.CB_param.evap_rates.filename = "../data/evap_CB.txt"
         self.CB_param.evap_rates.row = self.T
@@ -173,7 +173,7 @@ class model_zambezi:
         self.CahoraBassa.setInitCond(self.CB_param.initCond)
 
         # KAFUE GORGE Lower reservoir
-        self.KafueGorgeLower = lake("kafuegorgelower")
+        self.KafueGorgeLower = Lake("kafuegorgelower")
         self.KafueGorgeLower.setEvap(1)
         self.KGL_param.evap_rates.filename = "../data/evap_KGL.txt"
         self.KGL_param.evap_rates.row = self.T
@@ -516,7 +516,7 @@ class model_zambezi:
 
             # HYDROPOWER PRODUCTION (MWh/day)
             # Itezhitezhi
-            h_itt[t] = self.Itezhitezhi.storageToLevel(s_itt[t])
+            h_itt[t] = self.Itezhitezhi.storage_to_level(s_itt[t])
             qTurb_Temp = min(r_itt[t + 1], 2 * 306)
 
             qturb_ReservoirSim['itt'].write(str(qTurb_Temp) + "\n")
@@ -528,7 +528,7 @@ class model_zambezi:
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
             # Kafue Gorge Upper
-            h_kgu[t] = self.KafueGorgeUpper.storageToLevel(s_kgu[t])
+            h_kgu[t] = self.KafueGorgeUpper.storage_to_level(s_kgu[t])
             qTurb_Temp = min(r_kgu[t + 1], 6 * 42)
 
             qturb_ReservoirSim['kgu'].write(str(qTurb_Temp) + "\n")
@@ -540,7 +540,7 @@ class model_zambezi:
             gg_hydKGU = np.append(gg_hydKGU, hydTemp_dist)  #
 
             # Kariba North
-            h_ka[t] = self.Kariba.storageToLevel(s_ka[t])  #
+            h_ka[t] = self.Kariba.storage_to_level(s_ka[t])  #
             qTurb_Temp_N = min(r_ka[t + 1] * 0.488,
                                6 * 200)  # Kariba North has an efficiency of 48% -. 49% of the total release goes through Kariba North #
             headTemp = (108 - (489.5 - h_ka[t]))  #
@@ -561,7 +561,7 @@ class model_zambezi:
             gg_hydKA = np.append(gg_hydKA, hydTemp_dist)  #
 
             # Cahora Bassa
-            h_cb[t] = self.CahoraBassa.storageToLevel(s_cb[t])  #
+            h_cb[t] = self.CahoraBassa.storage_to_level(s_cb[t])  #
             qTurb_Temp = min(r_cb[t + 1], 5 * 452)  #
 
             qturb_ReservoirSim['cb'].write(str(qTurb_Temp) + "\n")
@@ -573,7 +573,7 @@ class model_zambezi:
             gg_hydCB = np.append(gg_hydCB, hydTemp_dist)  #
 
             # Kafue Gorge Lower
-            h_kgl[t] = self.KafueGorgeLower.storageToLevel(s_kgl[t])  #
+            h_kgl[t] = self.KafueGorgeLower.storage_to_level(s_kgl[t])  #
             qTurb_Temp = min(r_kgl[t + 1], 97.4 * 5)  #
 
             qturb_ReservoirSim['kgl'].write(str(qTurb_Temp) + "\n")

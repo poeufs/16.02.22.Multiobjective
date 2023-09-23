@@ -6,8 +6,8 @@
 # ===========================================================================
 
 # Importing model classes:
-from catchment import catchment, catchment_param
-from lake import reservoir_param, lake
+from catchment import Catchment, CatchmentParam
+from lake import ReservoirParam, Lake
 from utils import utils
 from smash import Policy
 
@@ -34,28 +34,28 @@ class model_zambezi:
         """
 
         #####################################################################
-        # initialize parameter constructs for objects (policy and catchment)
+        # initialize parameter constructs for objects (policy and Catchment)
         #####################################################################
 
         # 1. initialize parameter constructs for to be created policy objects
         self.p_param = policy_parameters_construct()
         self.irr_param = irr_function_parameters()
 
-        # 2. initialize parameter constructs for to be created catchment parameter objects (stored in a dictionary):
-        # TODO: change abbreviations/catchment names
+        # 2. initialize parameter constructs for to be created Catchment parameter objects (stored in a dictionary):
+        # TODO: change abbreviations/Catchment names
         catchment_list = ["Itt", "KafueFlats", "Ka", "Cb", "Cuando", "Shire", "Bg"]
         self.catchment_param_dict = dict()
 
         for catchment_name in catchment_list:
             catch_param_name = catchment_name + "_catch_param"
-            self.catchment_param_dict[catch_param_name] = catchment_param()
+            self.catchment_param_dict[catch_param_name] = CatchmentParam()
 
         # Reservoir parameter objects (stored separately to facilitate settings file reference):
-        self.KGU_param = reservoir_param()
-        self.ITT_param = reservoir_param()
-        self.KA_param = reservoir_param()
-        self.CB_param = reservoir_param()
-        self.KGL_param = reservoir_param()
+        self.KGU_param = ReservoirParam()
+        self.ITT_param = ReservoirParam()
+        self.KA_param = ReservoirParam()
+        self.CB_param = ReservoirParam()
+        self.KGL_param = ReservoirParam()
 
         # read the parameter values from either CSV or UI
         self.readFileSettings()
@@ -68,7 +68,7 @@ class model_zambezi:
             variable_name = catchment_name + "Catchment"
 
             # Specific parameter construct is used in instantiation
-            self.catchment_dict[variable_name] = catchment(self.catchment_param_dict[catch_param_name])
+            self.catchment_dict[variable_name] = Catchment(self.catchment_param_dict[catch_param_name])
 
         ###################
         # CREATE RESERVOIRS
@@ -76,15 +76,15 @@ class model_zambezi:
         # each of the 5 existing reservoirs is created here
 
         # 1. KAFUE GORGE UPPER (KGU) reservoir
-        self.KafueGorgeUpper = lake("kafuegorgeupper")  # creating a new object from corresponding lake class
+        self.KafueGorgeUpper = Lake("kafuegorgeupper")  # creating a new object from corresponding Lake class
         # 2. ITEZHITEZHI (ITT) reservoir
-        self.Itezhitezhi = lake("itezhitezhi")
+        self.Itezhitezhi = Lake("itezhitezhi")
         # 3. KARIBA (KA) reservoir
-        self.Kariba = lake("kariba")
+        self.Kariba = Lake("kariba")
         # 4. CAHORA BASSA (CB) reservoir
-        self.CahoraBassa = lake("cahorabassa")
+        self.CahoraBassa = Lake("cahorabassa")
         # 5. KAFUE GORGE LOWER reservoir
-        self.KafueGorgeLower = lake("kafuegorgelower")
+        self.KafueGorgeLower = Lake("kafuegorgelower")
 
         # Add reservoir evaporation rates
         # 1 KGU
@@ -529,7 +529,7 @@ class model_zambezi:
 
             # HYDROPOWER PRODUCTION (MWh/day)
             # Itezhitezhi
-            h_itt[t] = self.Itezhitezhi.storageToLevel(s_itt[t])
+            h_itt[t] = self.Itezhitezhi.storage_to_level(s_itt[t])
             qTurb_Temp = min(r_itt[t + 1], 2 * 306)
 
             headTemp = (40.50 - (1030.5 - h_itt[t]))
@@ -539,7 +539,7 @@ class model_zambezi:
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
             # Kafue Gorge Upper
-            h_kgu[t] = self.KafueGorgeUpper.storageToLevel(s_kgu[t])
+            h_kgu[t] = self.KafueGorgeUpper.storage_to_level(s_kgu[t])
             qTurb_Temp = min(r_kgu[t + 1], 6 * 42)
 
             headTemp = (397 - (977.6 - h_kgu[t]))
@@ -549,7 +549,7 @@ class model_zambezi:
             gg_hydKGU = np.append(gg_hydKGU, hydTemp_dist)  #
 
             # Kariba North
-            h_ka[t] = self.Kariba.storageToLevel(s_ka[t])  #
+            h_ka[t] = self.Kariba.storage_to_level(s_ka[t])  #
             qTurb_Temp_N = min(r_ka[t + 1] * 0.488,
                                6 * 200)  # Kariba North has an efficiency of 48% -. 49% of the total release goes through Kariba North #
             headTemp = (108 - (489.5 - h_ka[t]))  #
@@ -568,7 +568,7 @@ class model_zambezi:
             gg_hydKA = np.append(gg_hydKA, hydTemp_dist)  #
 
             # Cahora Bassa
-            h_cb[t] = self.CahoraBassa.storageToLevel(s_cb[t])  #
+            h_cb[t] = self.CahoraBassa.storage_to_level(s_cb[t])  #
             qTurb_Temp = min(r_cb[t + 1], 5 * 452)  #
 
             headTemp = (128 - (331 - h_cb[t]))  #
@@ -578,7 +578,7 @@ class model_zambezi:
             gg_hydCB = np.append(gg_hydCB, hydTemp_dist)  #
 
             # Kafue Gorge Lower
-            h_kgl[t] = self.KafueGorgeLower.storageToLevel(s_kgl[t])  #
+            h_kgl[t] = self.KafueGorgeLower.storage_to_level(s_kgl[t])  #
             qTurb_Temp = min(r_kgl[t + 1], 97.4 * 5)  #
 
             headTemp = (182.7 - (586 - h_kgl[t]))  #
