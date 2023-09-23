@@ -48,7 +48,8 @@ class model_zambezi:
 
         for catchment_name in catchment_list:
             catch_param_name = catchment_name + "_catch_param"
-            self.catchment_param_dict[catch_param_name] = CatchmentParam()
+            self.catchment_param_dict[catch_param_name] = CatchmentParam() # creates a dictionary for each catchment
+            # with two keys defined in CatchmentParam: CM and inflow_file
 
         # Reservoir parameter objects (stored separately to facilitate settings file reference):
         self.KGU_param = ReservoirParam()
