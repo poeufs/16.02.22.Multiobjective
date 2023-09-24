@@ -7,7 +7,7 @@
 
 # Importing model classes:
 from catchment import Catchment, CatchmentParam
-from lake import ReservoirParam, Lake
+from reservoir import ReservoirParam, Reservoir
 from utils import utils
 from smash import Policy
 
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 
-class model_zambezi:
+class ModelZambezi:
     """
     Model class consists of three major functions. First, static components
     such as reservoirs, catchments, policy objects are created within the
@@ -72,7 +72,7 @@ class model_zambezi:
 
         # create reservoirs
         # KAFUE GORGE UPPER reservoir
-        self.KafueGorgeUpper = Lake("kafuegorgeupper")  # creating a new object from corresponding Lake class
+        self.KafueGorgeUpper = Reservoir("kafuegorgeupper")  # creating a new object from corresponding Reservoir class
         self.KafueGorgeUpper.setEvap(
             1)  # evaporation data: 0 = no evaporation, 1 = load evaporation from file, 2 = activate function
         self.KGU_param.evap_rates.filename = "../data/evap_KG_KF.txt"
@@ -96,7 +96,7 @@ class model_zambezi:
         self.KafueGorgeUpper.setInitCond(self.KGU_param.initCond)
 
         # ITEZHITEZHI reservoir
-        self.Itezhitezhi = Lake("itezhitezhi")
+        self.Itezhitezhi = Reservoir("itezhitezhi")
         self.Itezhitezhi.setEvap(1)
         self.ITT_param.evap_rates.filename = "../data/evap_ITT.txt"
         self.ITT_param.evap_rates.row = self.T
@@ -119,7 +119,7 @@ class model_zambezi:
         self.Itezhitezhi.setInitCond(self.ITT_param.initCond)
 
         # KARIBA reservoir
-        self.Kariba = Lake("kariba")
+        self.Kariba = Reservoir("kariba")
         self.Kariba.setEvap(1)
         self.KA_param.evap_rates.filename = "../data/evap_KA.txt"
         self.KA_param.evap_rates.row = self.T
@@ -146,7 +146,7 @@ class model_zambezi:
         self.Kariba.setInitCond(self.KA_param.initCond)
 
         # CahoraBassa reservoir
-        self.CahoraBassa = Lake("cahorabassa")
+        self.CahoraBassa = Reservoir("cahorabassa")
         self.CahoraBassa.setEvap(1)
         self.CB_param.evap_rates.filename = "../data/evap_CB.txt"
         self.CB_param.evap_rates.row = self.T
@@ -173,7 +173,7 @@ class model_zambezi:
         self.CahoraBassa.setInitCond(self.CB_param.initCond)
 
         # KAFUE GORGE Lower reservoir
-        self.KafueGorgeLower = Lake("kafuegorgelower")
+        self.KafueGorgeLower = Reservoir("kafuegorgelower")
         self.KafueGorgeLower.setEvap(1)
         self.KGL_param.evap_rates.filename = "../data/evap_KGL.txt"
         self.KGL_param.evap_rates.row = self.T
@@ -267,7 +267,7 @@ class model_zambezi:
 
         Parameters
         ----------
-        self : model_zambezi object
+        self : ModelZambezi object
         var : np.array
             Parameter values for the reservoir control policy
             object (NN, RBF etc.)
@@ -319,7 +319,7 @@ class model_zambezi:
 
         Parameters
         ----------
-        self : model_zambezi object
+        self : ModelZambezi object
             
         Returns
         -------

@@ -7,7 +7,7 @@
 
 # Importing model classes:
 from catchment import Catchment, CatchmentParam
-from lake import ReservoirParam, Lake
+from reservoir import ReservoirParam, Reservoir
 from utils import utils
 from smash import Policy
 
@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 
-class model_zambezi:
+class ModelZambezi:
     """
     Model class consists of three major functions. First, static components
     such as reservoirs, catchments, policy objects are created within the
@@ -37,12 +37,13 @@ class model_zambezi:
         # initialize parameter constructs for objects (policy and Catchment)
         #####################################################################
 
-        # 1. initialize parameter constructs for to be created policy objects
+        # 1. Policy objects
+        # initialize parameter constructs for to be created policy objects
         self.p_param = policy_parameters_construct()
         self.irr_param = irr_function_parameters()
 
-        # 2. initialize parameter constructs for to be created Catchment parameter objects (stored in a dictionary):
-        # TODO: change abbreviations/Catchment names
+        # 2. Catchment objects
+        # initialize parameter constructs for to be created Catchment parameter objects (stored in a dictionary):
         catchment_list = ["Itt", "KafueFlats", "Ka", "Cb", "Cuando", "Shire", "Bg"]
         self.catchment_param_dict = dict()
 
@@ -51,17 +52,7 @@ class model_zambezi:
             self.catchment_param_dict[catch_param_name] = CatchmentParam() # creates a dictionary for each catchment
             # with two keys defined in CatchmentParam: CM and inflow_file
 
-        # Reservoir parameter objects (stored separately to facilitate settings file reference):
-        self.KGU_param = ReservoirParam()
-        self.ITT_param = ReservoirParam()
-        self.KA_param = ReservoirParam()
-        self.CB_param = ReservoirParam()
-        self.KGL_param = ReservoirParam()
-
-        # read the parameter values from either CSV or UI
-        self.readFileSettings()
-
-        # Catchment objects (stored in a dictionary)
+        # Make catchment objects (stored in a dictionary)
         self.catchment_dict = dict()
 
         for catchment_name in catchment_list:
@@ -71,21 +62,31 @@ class model_zambezi:
             # Specific parameter construct is used in instantiation
             self.catchment_dict[variable_name] = Catchment(self.catchment_param_dict[catch_param_name])
 
+        # 3. Create reservoir parameter objects (stored separately to facilitate settings file reference):
+        self.KGU_param = ReservoirParam()
+        self.ITT_param = ReservoirParam()
+        self.KA_param = ReservoirParam()
+        self.CB_param = ReservoirParam()
+        self.KGL_param = ReservoirParam()
+
+        # 5. Read the parameter values from either CSV or UI
+        self.readFileSettings()
+
         ###################
         # CREATE RESERVOIRS
         ###################
         # each of the 5 existing reservoirs is created here
 
         # 1. KAFUE GORGE UPPER (KGU) reservoir
-        self.KafueGorgeUpper = Lake("kafuegorgeupper")  # creating a new object from corresponding Lake class
+        self.KafueGorgeUpper = Reservoir("kafuegorgeupper")  # creating a new object from corresponding Reservoir class
         # 2. ITEZHITEZHI (ITT) reservoir
-        self.Itezhitezhi = Lake("itezhitezhi")
+        self.Itezhitezhi = Reservoir("itezhitezhi")
         # 3. KARIBA (KA) reservoir
-        self.Kariba = Lake("kariba")
+        self.Kariba = Reservoir("kariba")
         # 4. CAHORA BASSA (CB) reservoir
-        self.CahoraBassa = Lake("cahorabassa")
+        self.CahoraBassa = Reservoir("cahorabassa")
         # 5. KAFUE GORGE LOWER reservoir
-        self.KafueGorgeLower = Lake("kafuegorgelower")
+        self.KafueGorgeLower = Reservoir("kafuegorgelower")
 
         # Add reservoir evaporation rates
         # 1 KGU
@@ -312,7 +313,7 @@ class model_zambezi:
 
         Parameters
         ----------
-        self : model_zambezi object
+        self : ModelZambezi object
         var : np.array
             Parameter values for the reservoir control policy
             object (NN, RBF etc.)
@@ -362,7 +363,7 @@ class model_zambezi:
 
         Parameters
         ----------
-        self : model_zambezi object
+        self : ModelZambezi object
             
         Returns
         -------
@@ -370,24 +371,31 @@ class model_zambezi:
             Array of calculated KPI values
         """
 
-        ## INITIALIZATION: storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
+        ## INITIALIZATION of reservoir storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
 
+        # storage (s)
         s_kgu = np.full(self.H + 1, -999).astype('float')
         s_itt = np.full(self.H + 1, -999).astype('float')
         s_ka = np.full(self.H + 1, -999).astype('float')
         s_cb = np.full(self.H + 1, -999).astype('float')
         s_kgl = np.full(self.H + 1, -999).astype('float')
+
+        # level (h)
         h_kgu = np.full(self.H + 1, -999).astype('float')
         h_itt = np.full(self.H + 1, -999).astype('float')
         h_ka = np.full(self.H + 1, -999).astype('float')
         h_cb = np.full(self.H + 1, -999).astype('float')
         h_kgl = np.full(self.H + 1, -999).astype('float')
+
+        # decision (u)
         u_kgu = np.full(self.H, -999).astype('float')
         u_itt = np.full(self.H, -999).astype('float')
         u_ka = np.full(self.H, -999).astype('float')
         u_cb = np.full(self.H, -999).astype('float')
         u_kgl = np.full(self.H + 1, -999).astype('float')
+
+        # release (r)
         r_kgu = np.full(self.H + 1, -999).astype('float')
         r_itt = np.full(self.H + 1, -999).astype('float')
         r_itt_delay = np.full(self.H + 3, -999).astype(
@@ -395,8 +403,10 @@ class model_zambezi:
         r_ka = np.full(self.H + 1, -999).astype('float')
         r_cb = np.full(self.H + 1, -999).astype('float')
         r_kgl = np.full(self.H + 1, -999).astype('float')
+
         moy = np.full(self.H, -999, np.int64)  # Month of the year: integer vector (others float!)
 
+        # release (r) at irrigation areas (irr)
         # r_irr1 = np.full(self.H + 1, -999)
         r_irr2 = np.full(self.H + 1, -999)
         r_irr3 = np.full(self.H + 1, -999)
@@ -438,7 +448,9 @@ class model_zambezi:
         r_itt_delay[
             3] = 101.7307419354839  # December 1985 [m^3/sec] but divided for the number of days in March 1986 when it actually enters KGU #
 
+        ##################
         # Run simulation
+        ##################
 
         for t in range(self.H):
             # month of the year

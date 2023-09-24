@@ -102,13 +102,13 @@ class AbstractApproximator:
 
         return y
 
-    def setMaxInput(self, pV):
+    def set_max_input(self, pV):
         self.input_max = pV
 
     def setMaxOutput(self, pV):
         self.output_max = pV
 
-    def setMinInput(self, pV):
+    def set_min_input(self, pV):
         self.input_min = pV
 
     def setMinOutput(self, pV):
@@ -325,5 +325,5 @@ class ncRBF(AbstractApproximator):
     def get_free_parameter_number(self):  # the number of parameters for release policies (RBF)
         return self.K + self.N * (self.M * 2 + self.K)
 
-    def setMaxInput(self, pV):
-        super().setMaxInput(pV)
+    def set_max_input(self, pV):
+        super().set_max_input(pV)

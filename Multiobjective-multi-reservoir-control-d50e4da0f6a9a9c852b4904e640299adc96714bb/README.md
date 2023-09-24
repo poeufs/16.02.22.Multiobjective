@@ -30,7 +30,7 @@ Following the EMODPS methodology, release decisions are made by using a closed l
     ├── src/
     │   ├── alternative_policy_structures.py        # Contains the class that allows user to specify desired policy function
     │   ├── catchment.py                            # Contains the definition of catchment class which is used to generate irrigation districts
-    │   ├── lake.py                                 # Contains the definition of lake class which is used to generate different reservoirs
+    │   ├── reservoir.py                                 # Contains the definition of lake class which is used to generate different reservoirs
     │   ├── model_zambezi_OPT.py                    # Contains the model definition that includes initialisation and functions (adjusted for optimisation)
     │   ├── model_zambezi_SIM.py                    # Contains the model definition that includes initialisation and functions (adjusted for simulation)
     │   ├── smash.py                                # Contains the policy class that allows user to add as many functions as desired

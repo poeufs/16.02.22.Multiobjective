@@ -1,4 +1,4 @@
-# Lake class and ReservoirParam struct (class in Python)
+# Reservoir class and ReservoirParam struct (class in Python)
 # encapsulating the parameters of the reservoir
 
 from utils import MyFile, utils
@@ -19,7 +19,7 @@ class ReservoirParam:
         self.minEnvFlow = MyFile()
 
 
-class Lake:
+class Reservoir:
     """
     A class used to represent reservoirs of the problem
 

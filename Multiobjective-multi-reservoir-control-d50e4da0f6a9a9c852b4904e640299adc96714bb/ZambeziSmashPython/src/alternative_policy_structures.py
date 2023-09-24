@@ -14,7 +14,7 @@ class IrrigationPolicy:
         """
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
-        self.I = kw_dict['n_irr_districts']  # number of irrigation districts. Defined in model_zambezi, currently 8
+        self.I = kw_dict['n_irr_districts']  # number of irrigation districts. Defined in ModelZambezi, currently 8
         self.irr_parab_param = np.empty(0)
         self.irr_input_min = np.empty(0)
         self.irr_input_max = np.empty(0)

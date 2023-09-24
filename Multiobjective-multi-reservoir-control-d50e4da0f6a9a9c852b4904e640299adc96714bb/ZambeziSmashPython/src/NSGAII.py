@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 import os
-from model_zambezi_OPT import model_zambezi
+from model_zambezi_OPT import ModelZambezi
 from platypus import NSGAII, Problem, Real
 os.chdir('../src')
 
 # Initialize the problem
-ZambeziProblem = model_zambezi()
+ZambeziProblem = ModelZambezi()
 
 problem = Problem(ZambeziProblem.Nvar, ZambeziProblem.Nobj)
 problem.types[:] = Real(0, 1)
