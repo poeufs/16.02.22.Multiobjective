@@ -286,7 +286,7 @@ class ModelZambezi:
         self.overarching_policy.assign_free_parameters(var)
 
         if (self.Nsim < 2):  # single simulation
-            J = self.simulate()
+            J = self.simulate
             obj = J
 
         else:  # MC Simulation to be adjusted
@@ -295,7 +295,7 @@ class ModelZambezi:
             Jirr_def = np.empty()
 
             for _ in range(self.Nsim):
-                J = self.simulate()
+                J = self.simulate
                 Jhyd = np.append(Jhyd, J[0])
                 Jenv = np.append(Jenv, J[1])
                 Jirr_def = np.append(Jirr_def, J[2])
