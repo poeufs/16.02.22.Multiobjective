@@ -376,7 +376,9 @@ class ModelZambezi:
             Array of calculated KPI values
         """
 
-        ## INITIALIZATION of Reservoir storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
+        #################
+        # INITIALIZATION of Reservoir storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
+        #################
         import numpy as np
 
         # storage (s)
@@ -422,13 +424,13 @@ class ModelZambezi:
         r_irr8 = np.full(self.H + 1, -999)
         r_irr9 = np.full(self.H + 1, -999)
 
-        # simulation variables Python -. (initialized as float of value 0 and empty np array)
+        # SIMULATION VARIABLES (initialized as float of value 0 and empty np array)
         q_Itt, q_KafueFlats, q_KaLat, q_Bg, q_Cb, q_Cuando, q_Shire, \
             qTurb_Temp, qTurb_Temp_N, qTurb_Temp_S, headTemp, \
             hydTemp, hydTemp_dist, hydTemp_N, hydTemp_S, irrDef_Temp, irrDefNorm_Temp, \
-            envDef_Temp, qTotIN, qTotIN_1 = tuple(20 * [float()])  #
-        sd_rd = np.empty(0)  # storage and release resulting from daily integration
-        uu = np.empty(0)
+            envDef_Temp, qTotIN, qTotIN_1 = tuple(20 * [float()])  # catchment inflows, turbine inflows,
+        sd_rd = np.empty(0)  # (storage daily_release daily: storage and release resulting from daily integration
+        uu = np.empty(0) # decision array
         gg_hydKGU, gg_hydITT, gg_hydKA, gg_hydCB, gg_hydKGL, gg_hydVF, \
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
@@ -443,8 +445,10 @@ class ModelZambezi:
         s_cb[0] = self.CahoraBassa.getInitCond()
         s_kgl[0] = self.KafueGorgeLower.getInitCond()
 
-        qTotIN_1 = self.inflowTOT00  # initial inflow
+        # initial inflow
+        qTotIN_1 = self.inflowTOT00
 
+        # Average release from the ITT reservoir that reaches the KGU three months later per day
         r_itt_delay[0] = 0  # September 1985 [m^3/sec] #
         r_itt_delay[
             1] = 56.183290322580640  # October 1985 [m^3/sec] but divided for the number of days in January 1986 when it actually enters KGU #
@@ -461,24 +465,31 @@ class ModelZambezi:
             # month of the year
             moy[t] = (self.initMonth + t - 1) % (self.T) + 1
 
-            # inflows
+            # inflows read from
             q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)  # Itezhitezhi inflow @ Kafue Hook Bridge #
-            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(
-                t)  # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper) #
-            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(
-                t)  # Kariba inflow @ Victoria Falls increased by +10% #
-            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(
-                t)  # Cahora Bassa inflow (Luangwa and other tributaries) #
-            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)  # Kariba inflow @ Cuando river #
-            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)  # Shire discharge (upstream of the Delta) #
-            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(
-                t)  # Kariba inflow @ Victoria Falls increased by +10% #
+            print("q-ITT is", q_Itt)
+
+            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(t)
+                # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
+            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(t)
+                # Kariba inflow @ Victoria Falls increased by +10%
+            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(t)
+                # Cahora Bassa inflow (Luangwa and other tributaries)
+            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)
+                # Kariba inflow @ Cuando river #
+            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)
+                # Shire discharge (upstream of the Delta) #
+            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(t)
+                # Kariba inflow @ Victoria Falls increased by +10% #
+
+            # Calculate the total inflow
             qTotIN = q_Itt + q_KafueFlats + q_KaLat + q_Cb + q_Cuando + q_Shire + q_Bg
 
-            # add the inputs for the function approximator (NN, RBF) black-box policy
+            # add the inputs (storage, month and qTotIN_1 for the function approximator (NN, RBF) black-box policy
             input = np.array([s_itt[t], s_kgu[t], s_ka[t], s_cb[t], s_kgl[t], moy[t], qTotIN_1])
 
-            uu = self.overarching_policy.functions["release"].get_norm_output(input)  # Policy function is called here!
+            # Policy function is called here!
+            uu = self.overarching_policy.functions["release"].get_norm_output(input)
             u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)  # decision per reservoir assigned
 
             # daily integration and assignment of monthly storage and release values

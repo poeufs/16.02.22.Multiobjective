@@ -14,7 +14,7 @@ class IrrigationPolicy:
         """
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
-        self.I = kw_dict['n_irr_districts']  # number of irrigation districts. Defined in ModelZambezi, currently 8
+        self.I = kw_dict['n_irr_districts']  # number of irrigation districts (== irrigation diversions).
         self.irr_parab_param = np.empty(0)
         self.irr_input_min = np.empty(0)
         self.irr_input_max = np.empty(0)
@@ -26,14 +26,16 @@ class IrrigationPolicy:
         self.irr_parab_param = np.empty(0)
 
     def get_output(self, input):
+        """Calculates the irrigation output"""
         input_inflow, input_w, irr_district, irr_district_idx = tuple(input)
         y = float()
         hdg, hdg_dn, m = tuple(3 * [float()])
         start_param_idx = int(irr_district_idx[
-                                  irr_district - 2])  # [irr_district-2] need to be changed when additional irrigation districts are added
+                                  irr_district - 2]) # [irr_district-2] need to be changed when additional
+                                                        # irrigation districts are added
 
         hdg = self.irr_parab_param[
-            start_param_idx]  # hdg is the first policy parameter for irrigation disctrict i (=threshold)
+            start_param_idx]  # hdg is the first policy parameter for irrigation district i (=threshold)
         m = self.irr_parab_param[start_param_idx + 1]
 
         hdg_dn = hdg * (self.irr_input_max[irr_district - 2] - self.irr_input_min[irr_district - 2]) \

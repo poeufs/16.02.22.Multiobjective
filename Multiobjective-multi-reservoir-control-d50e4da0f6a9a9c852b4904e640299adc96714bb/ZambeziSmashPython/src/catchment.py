@@ -22,6 +22,7 @@ class Catchment:
         if cModel == 0:
             self.inflow = utils.loadVector(pCM.inflow_file.filename, pCM.inflow_file.row)
 
-    def get_inflow(self, pt): # function to get the inflow for day "pt"
+    def get_inflow(self, pt):
+        """ function to retrieve the inflow for day "pt" """
         q = float(self.inflow[pt])
         return q

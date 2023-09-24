@@ -286,7 +286,7 @@ class ModelZambezi:
         self.overarching_policy.assign_free_parameters(var)
 
         if (self.Nsim < 2):  # single simulation
-            J = self.simulate
+            J = self.simulate()
             obj = J
 
         else:  # MC Simulation to be adjusted
@@ -331,6 +331,7 @@ class ModelZambezi:
         rDelta = open("../storage_release/three_policy_simulation/rDelta_" + self.PolicySim + ".txt", 'w+')
         irrigation = open("../storage_release/three_policy_simulation/irr_" + self.PolicySim + ".txt", 'w+')
 
+        # Initialize the mass_balance
         mass_balance_ReservoirSim = dict()
         qturb_ReservoirSim = dict()
 
