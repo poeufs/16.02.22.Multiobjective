@@ -356,6 +356,10 @@ class ModelZambezi:
 
         return list(obj)
 
+    ########
+    # SIMULATION
+    ########
+
     @property
     def simulate(self):
         """ Mathematical simulation over the specified simulation
@@ -372,7 +376,7 @@ class ModelZambezi:
             Array of calculated KPI values
         """
 
-        ## INITIALIZATION of reservoir storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
+        ## INITIALIZATION of Reservoir storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
 
         # storage (s)
