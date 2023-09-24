@@ -38,7 +38,7 @@ class ModelZambezi:
         #####################################################################
 
         # 1. Policy objects
-        # initialize parameter constructs for to be created policy objects
+        # initialize parameter constructs from settings file for to be created policy objects
         self.p_param = policy_parameters_construct()
         self.irr_param = irr_function_parameters()
 
@@ -493,6 +493,7 @@ class ModelZambezi:
             u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)  # decision per reservoir assigned
 
             # daily integration and assignment of monthly storage and release values
+            # 1. ITT
             sd_rd = self.Itezhitezhi.integration(12 * self.integrationStep[moy[t] - 1], t, s_itt[t], u_itt[t], q_Itt,
                                                  moy[t])  # 2 # 24*integrationStep[moy[t]-1] ORIG
             s_itt[t + 1] = sd_rd[0]
@@ -500,41 +501,50 @@ class ModelZambezi:
             r_itt_delay[t + 3] = r_itt[t + 1] * (self.integrationStep[moy[t] - 1]) / (
             self.integrationStep_delay[moy[t] - 1])
 
+            # Irrigation district 4, dependent on KafueFlats
             r_irr4[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [q_KafueFlats + r_itt_delay[t + 1], self.irr_demand_dict["irr_demand4"][moy[t] - 1], 4,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s]
 
+            # 2. KGU
             sd_rd = self.KafueGorgeUpper.integration(12 * self.integrationStep[moy[t] - 1], t, s_kgu[t], u_kgu[t],
                                                      q_KafueFlats + r_itt_delay[t + 1] - r_irr4[t + 1],
                                                      moy[t])  # 2 24*integrationStep[moy[t]-1] ORIG
             s_kgu[t + 1] = sd_rd[0]
             r_kgu[t + 1] = sd_rd[1]
 
+            # 3. KGL
             sd_rd = self.KafueGorgeLower.integration(12 * self.integrationStep[moy[t] - 1], t, s_kgl[t], u_kgl[t],
                                                      r_kgu[t + 1], moy[t])  # 2 24*integrationStep[moy[t]-1]
             s_kgl[t + 1] = sd_rd[0]
             r_kgl[t + 1] = sd_rd[1]
 
+            # Irrigation district 2. Dependent on Cuando and KaLat
             r_irr2[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [q_Bg + q_Cuando + q_KaLat, self.irr_demand_dict["irr_demand2"][moy[t] - 1], 2,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
 
+            # 4. Kariba
             sd_rd = self.Kariba.integration_daily(self.integrationStep[moy[t] - 1], t, s_ka[t], u_ka[t],
                                                   q_Bg + q_Cuando + q_KaLat - r_irr2[t + 1], moy[t])  # 2
             s_ka[t + 1] = sd_rd[0]
             r_ka[t + 1] = sd_rd[1]
 
+            # Irrigation district 3
             r_irr3[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_ka[t + 1], self.irr_demand_dict["irr_demand3"][moy[t] - 1], 3,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+            # Irrigation district 5
             r_irr5[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_kgl[t + 1], self.irr_demand_dict["irr_demand5"][moy[t] - 1], 5,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+            # Irrigation district 6
             r_irr6[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_ka[t + 1] - r_irr3[t + 1] + r_kgl[t + 1] - r_irr5[t + 1],
                  self.irr_demand_dict["irr_demand6"][moy[t] - 1], 6,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
 
+            # 5. CahoraBassa
             sd_rd = self.CahoraBassa.integration(12 * self.integrationStep[moy[t] - 1], t, s_cb[t], u_cb[t],
                                                  q_Cb + r_kgl[t + 1] + r_ka[t + 1] - (
                                                              r_irr3[t + 1] + r_irr5[t + 1] + r_irr6[t + 1]), moy[t])
@@ -542,22 +552,28 @@ class ModelZambezi:
             r_cb[t + 1] = sd_rd[1]  #
             del sd_rd  #
 
+            # Irrigation district 7
             r_irr7[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1], self.irr_demand_dict["irr_demand7"][moy[t] - 1], 7,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+            # Irrigation district 8
             r_irr8[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1] - r_irr7[t + 1], self.irr_demand_dict["irr_demand8"][moy[t] - 1], 8,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+            # Irrigation district 9
             r_irr9[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1] - r_irr7[t + 1] + q_Shire - r_irr8[t + 1], self.irr_demand_dict["irr_demand9"][moy[t] - 1],
                  9, self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
 
+            # Total inflow
             qTotIN_1 = qTotIN
 
+            ############################
             # TIME-SEPARABLE OBJECTIVES
+            ############################
 
             # HYDROPOWER PRODUCTION (MWh/day)
-            # Itezhitezhi
+            # 1. ITT
             h_itt[t] = self.Itezhitezhi.storage_to_level(s_itt[t])
             qTurb_Temp = min(r_itt[t + 1], 2 * 306)
 
@@ -567,7 +583,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Itt[moy[t] - 1])
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
-            # Kafue Gorge Upper
+            # 2. Kafue Gorge Upper
             h_kgu[t] = self.KafueGorgeUpper.storage_to_level(s_kgu[t])
             qTurb_Temp = min(r_kgu[t + 1], 6 * 42)
 
@@ -624,50 +640,54 @@ class ModelZambezi:
                         24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             gg_hydVF = np.append(gg_hydVF, hydTemp)  #
 
+            # Total hydropower deficit
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
 
+            # Irrigation deficit calculation
+            # Irr district 2
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand2"][moy[t] - 1] - r_irr2[t + 1], 0), 2)
             gg_irr2 = np.append(gg_irr2, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand2"][moy[t] - 1])
             gg_irr2_NormDef = np.append(gg_irr2_NormDef, irrDefNorm_Temp)
-
+            # Irr district 3
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand3"][moy[t] - 1] - r_irr3[t + 1], 0), 2)
             gg_irr3 = np.append(gg_irr3, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand3"][moy[t] - 1])
             gg_irr3_NormDef = np.append(gg_irr3_NormDef, irrDefNorm_Temp)
-
+            # Irr district 4
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand4"][moy[t] - 1] - r_irr4[t + 1], 0), 2)
             gg_irr4 = np.append(gg_irr4, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand4"][moy[t] - 1])
             gg_irr4_NormDef = np.append(gg_irr4_NormDef, irrDefNorm_Temp)
-
+            # Irr district 5
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand5"][moy[t] - 1] - r_irr5[t + 1], 0), 2)
             gg_irr5 = np.append(gg_irr5, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand5"][moy[t] - 1])
             gg_irr5_NormDef = np.append(gg_irr5_NormDef, irrDefNorm_Temp)
-
+            # Irr district 6
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand6"][moy[t] - 1] - r_irr6[t + 1], 0), 2)
             gg_irr6 = np.append(gg_irr6, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand6"][moy[t] - 1])
             gg_irr6_NormDef = np.append(gg_irr6_NormDef, irrDefNorm_Temp)
-
+            # Irr district 7
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand7"][moy[t] - 1] - r_irr7[t + 1], 0), 2)
             gg_irr7 = np.append(gg_irr7, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand7"][moy[t] - 1])
             gg_irr7_NormDef = np.append(gg_irr7_NormDef, irrDefNorm_Temp)
-
+            # Irr district 8
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand8"][moy[t] - 1] - r_irr8[t + 1], 0), 2)
             gg_irr8 = np.append(gg_irr8, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand8"][moy[t] - 1])
             gg_irr8_NormDef = np.append(gg_irr8_NormDef, irrDefNorm_Temp)
-
+            # Irr district 9
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand9"][moy[t] - 1] - r_irr9[t + 1], 0), 2)
             gg_irr9 = np.append(gg_irr9, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand9"][moy[t] - 1])
             gg_irr9_NormDef = np.append(gg_irr9_NormDef, irrDefNorm_Temp)
 
+            # Total irrigation deficit
             deficitIRR_tot = np.append(deficitIRR_tot,
                                        gg_irr2_NormDef[t] + gg_irr3_NormDef[t] + gg_irr4_NormDef[t] + gg_irr5_NormDef[
                                            t] + gg_irr6_NormDef[t] + gg_irr7_NormDef[t] + gg_irr8_NormDef[t] +
@@ -679,7 +699,7 @@ class ModelZambezi:
                     0), 2)
             gg_env = np.append(gg_env, envDef_Temp)
 
-            deficitENV_tot = np.append(deficitENV_tot, gg_env[t])  # Delta environment deficit
+            deficitENV_tot = np.append(deficitENV_tot, gg_env[t])  # total Delta environmental deficit
 
             # clear
             input = np.empty(0)
@@ -708,8 +728,7 @@ class ModelZambezi:
 
     # Normalized SQUARED deficit
     def g_deficit_norm(self, defp, w):
-        """Takes two floats and divides the first by
-        the square of the second.
+        """Takes two floats and divides the first by the square of the second.
 
         Parameters
         ----------
@@ -730,7 +749,7 @@ class ModelZambezi:
         return def_norm
 
     def readFileSettings(self):
-
+        """ Read the settings file from data folder """
         def nested_getattr(object, nested_attr_list):
 
             obj_copy = object
@@ -766,12 +785,14 @@ class ModelZambezi:
             elif row.Type == "str":
                 setattr(object, name, str(row["Value"]))
 
-        self.integrationStep = utils.loadIntVector("../data/number_days_month.txt", self.T)
-        self.integrationStep_delay = utils.loadIntVector("../data/number_days_month_delay.txt", self.T)
+        # Load number_days_month for integration
+        self.integrationStep = utils.loadIntVector("../data/number_days_month.txt", self.T) #number of days in month x
+        self.integrationStep_delay = utils.loadIntVector("../data/number_days_month_delay.txt", self.T) # n of days
+            # month x + 3
 
         # self.moy_file = utils.loadIntVector("../data/moy_1986_2005.txt", self.H)
 
-        self.catchment_param_dict["Itt_catch_param"].CM = 1
+        self.catchment_param_dict["Itt_catch_param"].CM = 1 # What is the use of CM =1?
         self.catchment_param_dict["Itt_catch_param"].inflow_file.filename = "../data/qInfItt_1January1986_31Dec2005.txt"
         self.catchment_param_dict["Itt_catch_param"].inflow_file.row = self.H
 
@@ -809,7 +830,7 @@ class ModelZambezi:
 #####################################
 
 class policy_parameters_construct:
-
+    """ Load from settings file to initialize policy parameter constructs"""
     def __init__(self):
         self.tPolicy = int()
         self.policyInput = int()
@@ -821,6 +842,7 @@ class policy_parameters_construct:
 
 
 class irr_function_parameters:
+    """ Load from settings file to initialize irrigation function parameter constructs"""
     def __init__(self):
         self.num_irr = int()
         self.mParam = np.empty(0)

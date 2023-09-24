@@ -70,126 +70,165 @@ class ModelZambezi:
             # Specific parameter construct is used in instantiation
             self.catchment_dict[variable_name] = Catchment(self.catchment_param_dict[catch_param_name])
 
-        # create reservoirs
-        # KAFUE GORGE UPPER reservoir
+        ###################
+        # CREATE RESERVOIRS
+        ###################
+        # each of the 5 existing reservoirs is created here
+
+        # 1. KAFUE GORGE UPPER (KGU) reservoir
         self.KafueGorgeUpper = Reservoir("kafuegorgeupper")  # creating a new object from corresponding Reservoir class
+        # 2. ITEZHITEZHI (ITT) reservoir
+        self.Itezhitezhi = Reservoir("itezhitezhi")
+        # 3. KARIBA (KA) reservoir
+        self.Kariba = Reservoir("kariba")
+        # 4. CAHORA BASSA (CB) reservoir
+        self.CahoraBassa = Reservoir("cahorabassa")
+        # 5. KAFUE GORGE LOWER reservoir
+        self.KafueGorgeLower = Reservoir("kafuegorgelower")
+
+        # Add reservoir evaporation rates
+        # 1 KGU
         self.KafueGorgeUpper.setEvap(
             1)  # evaporation data: 0 = no evaporation, 1 = load evaporation from file, 2 = activate function
         self.KGU_param.evap_rates.filename = "../data/evap_KG_KF.txt"
         self.KGU_param.evap_rates.row = self.T  # setting # of rows as simulation period (12) for file reading
         self.KafueGorgeUpper.setEvapRates(self.KGU_param.evap_rates)
-        self.KGU_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeUpper.txt"  # [m m2 m3]
-        self.KGU_param.lsv_rel.row = 3
-        self.KGU_param.lsv_rel.col = 22
-        self.KafueGorgeUpper.setLSV_Rel(self.KGU_param.lsv_rel)
-        self.KGU_param.rating_curve.filename = "../data/min_max_release_KafueGorgeUpper.txt"  # [m m3/s m3/s] #
-        self.KGU_param.rating_curve.row = 3
-        self.KGU_param.rating_curve.col = 18
-        self.KafueGorgeUpper.setRatCurve(self.KGU_param.rating_curve)
-        self.KGU_param.tailwater.filename = "../data/tailwater_rating_KafueGorgeUpper.txt"  # [m3/s m] = [Discharge Tailwater Level]
-        self.KGU_param.tailwater.row = 2
-        self.KGU_param.tailwater.col = 7
-        self.KafueGorgeUpper.setTailwater(self.KGU_param.tailwater)
-        self.KGU_param.minEnvFlow.filename = "../data/MEF_KafueGorgeUpper.txt"  # [m^3/sec]
-        self.KGU_param.minEnvFlow.row = self.T
-        self.KafueGorgeUpper.setMEF(self.KGU_param.minEnvFlow)
-        self.KafueGorgeUpper.setInitCond(self.KGU_param.initCond)
-
-        # ITEZHITEZHI reservoir
-        self.Itezhitezhi = Reservoir("itezhitezhi")
+        # 2 ITT
         self.Itezhitezhi.setEvap(1)
         self.ITT_param.evap_rates.filename = "../data/evap_ITT.txt"
         self.ITT_param.evap_rates.row = self.T
         self.Itezhitezhi.setEvapRates(self.ITT_param.evap_rates)
-        self.ITT_param.lsv_rel.filename = "../data/lsv_rel_Itezhitezhi.txt"
-        self.ITT_param.lsv_rel.row = 3
-        self.ITT_param.lsv_rel.col = 19  #
-        self.Itezhitezhi.setLSV_Rel(self.ITT_param.lsv_rel)
-        self.ITT_param.rating_curve.filename = "../data/min_max_release_Itezhitezhi.txt"
-        self.ITT_param.rating_curve.row = 3
-        self.ITT_param.rating_curve.col = 43
-        self.Itezhitezhi.setRatCurve(self.ITT_param.rating_curve)
-        self.ITT_param.tailwater.filename = "../data/tailwater_rating_Itezhitezhi.txt"
-        self.ITT_param.tailwater.row = 2
-        self.ITT_param.tailwater.col = 10
-        self.Itezhitezhi.setTailwater(self.ITT_param.tailwater)
-        self.ITT_param.minEnvFlow.filename = "../data/MEF_Itezhitezhi.txt"
-        self.ITT_param.minEnvFlow.row = self.T
-        self.Itezhitezhi.setMEF(self.ITT_param.minEnvFlow)
-        self.Itezhitezhi.setInitCond(self.ITT_param.initCond)
-
-        # KARIBA reservoir
-        self.Kariba = Reservoir("kariba")
+        # 3 KA
         self.Kariba.setEvap(1)
         self.KA_param.evap_rates.filename = "../data/evap_KA.txt"
         self.KA_param.evap_rates.row = self.T
         self.Kariba.setEvapRates(self.KA_param.evap_rates)
-        self.KA_param.lsv_rel.filename = "../data/lsv_rel_Kariba.txt"
-        self.KA_param.lsv_rel.row = 3
-        self.KA_param.lsv_rel.col = 16
-        self.Kariba.setLSV_Rel(self.KA_param.lsv_rel)
-        self.KA_param.rating_curve.filename = "../data/min_max_release_Kariba.txt"
-        self.KA_param.rating_curve.row = 3
-        self.KA_param.rating_curve.col = 11
-        self.Kariba.setRatCurve(self.KA_param.rating_curve)
-        self.KA_param.rule_curve.filename = "../data/rule_curve_Kariba.txt"
-        self.KA_param.rule_curve.row = 3
-        self.KA_param.rule_curve.col = 12
-        self.Kariba.setRuleCurve(self.KA_param.rule_curve)
-        self.KA_param.tailwater.filename = "../data/tailwater_rating_Kariba.txt"
-        self.KA_param.tailwater.row = 2
-        self.KA_param.tailwater.col = 9
-        self.Kariba.setTailwater(self.KA_param.tailwater)
-        self.KA_param.minEnvFlow.filename = "../data/MEF_Kariba.txt"
-        self.KA_param.minEnvFlow.row = self.T
-        self.Kariba.setMEF(self.KA_param.minEnvFlow)
-        self.Kariba.setInitCond(self.KA_param.initCond)
-
-        # CahoraBassa reservoir
-        self.CahoraBassa = Reservoir("cahorabassa")
+        # 4 CB
         self.CahoraBassa.setEvap(1)
         self.CB_param.evap_rates.filename = "../data/evap_CB.txt"
         self.CB_param.evap_rates.row = self.T
         self.CahoraBassa.setEvapRates(self.CB_param.evap_rates)
-        self.CB_param.lsv_rel.filename = "../data/lsv_rel_CahoraBassa.txt"
-        self.CB_param.lsv_rel.row = 3
-        self.CB_param.lsv_rel.col = 10  #
-        self.CahoraBassa.setLSV_Rel(self.CB_param.lsv_rel)
-        self.CB_param.rating_curve.filename = "../data/min_max_release_CahoraBassa.txt"
-        self.CB_param.rating_curve.row = 3
-        self.CB_param.rating_curve.col = 10
-        self.CahoraBassa.setRatCurve(self.CB_param.rating_curve)
-        self.CB_param.rule_curve.filename = "../data/rule_curve_CahoraBassa.txt"  # [time(month) month-end level(m) month-end storage(m3)]
-        self.CB_param.rule_curve.row = 3
-        self.CB_param.rule_curve.col = 12
-        self.CahoraBassa.setRuleCurve(self.CB_param.rule_curve)
-        self.CB_param.tailwater.filename = "../data/tailwater_rating_CahoraBassa.txt"
-        self.CB_param.tailwater.row = 2
-        self.CB_param.tailwater.col = 9
-        self.CahoraBassa.setTailwater(self.CB_param.tailwater)
-        self.CB_param.minEnvFlow.filename = "../data/MEF_CahoraBassa.txt"
-        self.CB_param.minEnvFlow.row = self.T
-        self.CahoraBassa.setMEF(self.CB_param.minEnvFlow)
-        self.CahoraBassa.setInitCond(self.CB_param.initCond)
-
-        # KAFUE GORGE Lower reservoir
-        self.KafueGorgeLower = Reservoir("kafuegorgelower")
+        # 5 KGL
         self.KafueGorgeLower.setEvap(1)
         self.KGL_param.evap_rates.filename = "../data/evap_KGL.txt"
         self.KGL_param.evap_rates.row = self.T
         self.KafueGorgeLower.setEvapRates(self.KGL_param.evap_rates)
+
+        # Add reservoir level to storage relation
+        # 1 KGU
+        self.KGU_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeUpper.txt"  # [m m2 m3]
+        self.KGU_param.lsv_rel.row = 3
+        self.KGU_param.lsv_rel.col = 22
+        self.KafueGorgeUpper.setLSV_Rel(self.KGU_param.lsv_rel)
+        # 2 ITT
+        self.ITT_param.lsv_rel.filename = "../data/lsv_rel_Itezhitezhi.txt"
+        self.ITT_param.lsv_rel.row = 3
+        self.ITT_param.lsv_rel.col = 19  #
+        self.Itezhitezhi.setLSV_Rel(self.ITT_param.lsv_rel)
+        # 3 KA
+        self.KA_param.lsv_rel.filename = "../data/lsv_rel_Kariba.txt"
+        self.KA_param.lsv_rel.row = 3
+        self.KA_param.lsv_rel.col = 16
+        self.Kariba.setLSV_Rel(self.KA_param.lsv_rel)
+        # 4 CB
+        self.CB_param.lsv_rel.filename = "../data/lsv_rel_CahoraBassa.txt"
+        self.CB_param.lsv_rel.row = 3
+        self.CB_param.lsv_rel.col = 10  #
+        self.CahoraBassa.setLSV_Rel(self.CB_param.lsv_rel)
+        # 5 KGL
         self.KGL_param.lsv_rel.filename = "../data/lsv_rel_KafueGorgeLower.txt"
         self.KGL_param.lsv_rel.row = 3
         self.KGL_param.lsv_rel.col = 10
         self.KafueGorgeLower.setLSV_Rel(self.KGL_param.lsv_rel)
+
+        # Add the rating curve of the reservoirs
+        # 1 KGU
+        self.KGU_param.rating_curve.filename = "../data/min_max_release_KafueGorgeUpper.txt"  # [m m3/s m3/s] #
+        self.KGU_param.rating_curve.row = 3
+        self.KGU_param.rating_curve.col = 18
+        self.KafueGorgeUpper.setRatCurve(self.KGU_param.rating_curve)
+        # 2 ITT
+        self.ITT_param.rating_curve.filename = "../data/min_max_release_Itezhitezhi.txt"
+        self.ITT_param.rating_curve.row = 3
+        self.ITT_param.rating_curve.col = 43
+        self.Itezhitezhi.setRatCurve(self.ITT_param.rating_curve)
+        # 3 KA
+        self.KA_param.rating_curve.filename = "../data/min_max_release_Kariba.txt"
+        self.KA_param.rating_curve.row = 3
+        self.KA_param.rating_curve.col = 11
+        self.Kariba.setRatCurve(self.KA_param.rating_curve)
+        # 4 CB
+        self.CB_param.rating_curve.filename = "../data/min_max_release_CahoraBassa.txt"
+        self.CB_param.rating_curve.row = 3
+        self.CB_param.rating_curve.col = 10
+        self.CahoraBassa.setRatCurve(self.CB_param.rating_curve)
+        # 5 KGL
         self.KGL_param.rating_curve_minmax.filename = "../data/min_max_release_KafueGorgeLower.txt"
         self.KGL_param.rating_curve.row = 1
         self.KGL_param.rating_curve.col = 3
         self.KafueGorgeLower.setRatCurve_MinMax(self.KGL_param.rating_curve_minmax)
+
+        # Add the rule curve of the reservoir
+        # 3 KA
+        self.KA_param.rule_curve.filename = "../data/rule_curve_Kariba.txt"
+        self.KA_param.rule_curve.row = 3
+        self.KA_param.rule_curve.col = 12
+        self.Kariba.setRuleCurve(self.KA_param.rule_curve)
+        # 4
+        self.CB_param.rule_curve.filename = "../data/rule_curve_CahoraBassa.txt"  # [time(month) month-end level(m) month-end storage(m3)]
+        self.CB_param.rule_curve.row = 3
+        self.CB_param.rule_curve.col = 12
+        self.CahoraBassa.setRuleCurve(self.CB_param.rule_curve)
+
+        # Add the tailwater rating of the reservoirs
+        # 1 KGU
+        self.KGU_param.tailwater.filename = "../data/tailwater_rating_KafueGorgeUpper.txt"  # [m3/s m] = [Discharge Tailwater Level]
+        self.KGU_param.tailwater.row = 2
+        self.KGU_param.tailwater.col = 7
+        self.KafueGorgeUpper.setTailwater(self.KGU_param.tailwater)
+        # 2 ITT
+        self.ITT_param.tailwater.filename = "../data/tailwater_rating_Itezhitezhi.txt"
+        self.ITT_param.tailwater.row = 2
+        self.ITT_param.tailwater.col = 10
+        self.Itezhitezhi.setTailwater(self.ITT_param.tailwater)
+        # 3 KA
+        self.KA_param.tailwater.filename = "../data/tailwater_rating_Kariba.txt"
+        self.KA_param.tailwater.row = 2
+        self.KA_param.tailwater.col = 9
+        self.Kariba.setTailwater(self.KA_param.tailwater)
+        # 4 CB
+        self.CB_param.tailwater.filename = "../data/tailwater_rating_CahoraBassa.txt"
+        self.CB_param.tailwater.row = 2
+        self.CB_param.tailwater.col = 9
+        self.CahoraBassa.setTailwater(self.CB_param.tailwater)
+        # 5 KBL
         self.KGL_param.tailwater.filename = "../data/tailwater_rating_KafueGorgeLower.txt"
         self.KGL_param.tailwater.row = 2
         self.KGL_param.tailwater.col = 8
         self.KafueGorgeLower.setTailwater(self.KGL_param.tailwater)
+
+        # Add the minimum environmental flow of the reservoirs
+        # 1 KGU
+        self.KGU_param.minEnvFlow.filename = "../data/MEF_KafueGorgeUpper.txt"  # [m^3/sec]
+        self.KGU_param.minEnvFlow.row = self.T
+        self.KafueGorgeUpper.setMEF(self.KGU_param.minEnvFlow)
+        self.KafueGorgeUpper.setInitCond(self.KGU_param.initCond)
+        # 2 ITT
+        self.ITT_param.minEnvFlow.filename = "../data/MEF_Itezhitezhi.txt"
+        self.ITT_param.minEnvFlow.row = self.T
+        self.Itezhitezhi.setMEF(self.ITT_param.minEnvFlow)
+        self.Itezhitezhi.setInitCond(self.ITT_param.initCond)
+        # 3 KA
+        self.KA_param.minEnvFlow.filename = "../data/MEF_Kariba.txt"
+        self.KA_param.minEnvFlow.row = self.T
+        self.Kariba.setMEF(self.KA_param.minEnvFlow)
+        self.Kariba.setInitCond(self.KA_param.initCond)
+        # 4 CB
+        self.CB_param.minEnvFlow.filename = "../data/MEF_CahoraBassa.txt"
+        self.CB_param.minEnvFlow.row = self.T
+        self.CahoraBassa.setMEF(self.CB_param.minEnvFlow)
+        self.CahoraBassa.setInitCond(self.CB_param.initCond)
+        # 5 KGL
         self.KGL_param.minEnvFlow.filename = "../data/MEF_KafueGorgeLower.txt"
         self.KGL_param.minEnvFlow.row = self.T
         self.KafueGorgeLower.setMEF(self.KGL_param.minEnvFlow)
