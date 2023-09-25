@@ -292,7 +292,9 @@ class ModelZambezi:
         # Load Minimum Environmental Flow requirement in the Zambezi Delta for the months of February and March
         self.qDelta = utils.loadVector("../data/MEF_Delta.txt", self.T)  # [m^3/sec]
 
+        ### First difference with model_zambezi_OPT
         self.PolicySim = policy_sim  # To keep the name of the policy with which the simulatin is run
+        ### end of difference
 
     def getNobj(self):
         return self.Nobj
@@ -319,8 +321,10 @@ class ModelZambezi:
 
         obj = np.empty(0)
 
+        ### Second difference
         objectives = open("../objs/" + self.PolicySim + "_simulated.objs",
                           'w+')  # opening the file to write the objective values
+        ###
 
         self.overarching_policy.assign_free_parameters(var)
 
@@ -344,8 +348,10 @@ class ModelZambezi:
             obj = np.append(obj, np.percentile(Jenv, 99))
             obj = np.append(obj, np.percentile(Jirr_def, 99))
 
+        ### 3rd difference OPT
         objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         objectives.close()
+        ###
 
         # re-initialize policy parameters for further runs in the optimization mode
         self.overarching_policy.functions["release"].clear_parameters()
@@ -366,6 +372,7 @@ class ModelZambezi:
             Array of calculated KPI values
         """
 
+        ### Diff 4
         # Opening the files (ofstream in c++)
         rDelta = open("../storage_release/three_policy_simulation/rDelta_" + self.PolicySim + ".txt", 'w+')
         irrigation = open("../storage_release/three_policy_simulation/irr_" + self.PolicySim + ".txt", 'w+')
@@ -379,7 +386,7 @@ class ModelZambezi:
                 "../storage_release/three_policy_simulation/qturb_" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
             mass_balance_ReservoirSim[reservoir] = open(
                 "../storage_release/three_policy_simulation/" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
-
+        ### End diff
         ## INITIALIZATION: storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
 
@@ -590,7 +597,9 @@ class ModelZambezi:
             # Kariba South
             qTurb_Temp_S = min(r_ka[t + 1] * 0.512, 6 * 140)  #
 
+            ### Diff 5
             qturb_ReservoirSim['ka'].write(str(qTurb_Temp_N + qTurb_Temp_S) + "\n")
+            ###
 
             headTemp = (110 - (489.5 - h_ka[t]))  #
             hydTemp_S = ((qTurb_Temp_S * headTemp * 1000 * 9.81 * 0.51 * (
@@ -632,6 +641,7 @@ class ModelZambezi:
                         24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             gg_hydVF = np.append(gg_hydVF, hydTemp)  #
 
+            ### Dif 6
             mass_balance_ReservoirSim['itt'].write(
                 str(q_Itt) + " " + str(h_itt[t]) + " " + str(s_itt[t]) + " " + str(s_itt[t + 1]) + " " + str(
                     r_itt[t + 1]) + " " + str(r_itt_delay[t + 1]) + "\n")
@@ -652,7 +662,7 @@ class ModelZambezi:
             irrigation.write(str(r_irr2[t + 1]) + " " + str(r_irr3[t + 1]) + " " + str(r_irr4[t + 1]) + " " + str(
                 r_irr5[t + 1]) + " " + str(r_irr6[t + 1]) + " " + str(r_irr7[t + 1]) + " " + str(
                 r_irr8[t + 1]) + " " + str(r_irr9[t + 1]) + '\n')
-
+            ### end dif
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
@@ -714,12 +724,14 @@ class ModelZambezi:
             input = np.empty(0)
             uu = np.empty(0)
 
+        ### Dif 7
         for reservoir in ['cb', 'itt', 'ka', 'kgu', 'kgl']:
             qturb_ReservoirSim[reservoir].close()
             mass_balance_ReservoirSim[reservoir].close()
 
         irrigation.close()
         rDelta.close()
+        ###
 
         # NOT Super clear if below implementation is correct. Check!!!!
         # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) // 
