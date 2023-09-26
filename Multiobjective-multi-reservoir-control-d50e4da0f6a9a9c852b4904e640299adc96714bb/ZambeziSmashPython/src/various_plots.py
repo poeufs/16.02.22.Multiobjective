@@ -80,7 +80,7 @@ def plot_quantities():
     # reservoirs=['itt','kgu','kgl','ka','bg','dg','cb','mn']
     reservoirs = ['itt', 'kgu', 'kgl', 'ka', 'cb']
     title = '5_res_wKGL'
-    # input_file='Zambezi_'+title+'.reference'  #'.reference'change filename
+    # input_file='Zambezi_'+title+'.reference'  #'.reference'change file_name
 
     # data= np.loadtxt('../parallel/sets/'+feature+'/'+input_file, skiprows=0+1+2-1)
     delta_release_balance = '\n('r'$r_{CB}+Q_{Shire}-r_{Irrd7}-r_{Irrd8}-r_{Irrd9}$)'

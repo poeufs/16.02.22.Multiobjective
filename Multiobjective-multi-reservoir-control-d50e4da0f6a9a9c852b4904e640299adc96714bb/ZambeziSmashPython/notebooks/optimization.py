@@ -26,7 +26,7 @@ def model_wrapper(**kwargs):
 model = Model('zambeziproblem', function=model_wrapper)
 print('after model definition')
 
-#specify levers
+#levers
 model.levers = [RealParameter('v' + str(i), -1, 1) for i in range(ZambeziProblem.Nvar)]
 print('after model.levers')
 
@@ -47,16 +47,24 @@ if __name__ == '__main__':
     # with SequentialEvaluator(model) as evaluator:
     #     results = evaluator.optimize(nfe=250, searchover="levers", epsilons=[0.1] * len(model.outcomes))
     print('after ema logging')
+
     results = []
     with MultiprocessingEvaluator(model) as evaluator:
         for _ in range(5):
-            result = evaluator.optimize(nfe=100 #500000 #250
+            result = evaluator.optimize(nfe=10000 #500000 #250
                                      , searchover="levers", epsilons=[0.1] * len(model.outcomes)) # 0.05
-        results.append(result)
-        print(results)
+            print("result", result)
+            results.append(result)
+
+        print("results", results)
+
+        with open('results_10000.txt', 'w') as file:
+            file.write('\n'.join(results))
+
+    print("after evaluator")
 
     # Merge the 5 runs of the optimization
-    from ema_workbench.em_framework.optimization import epsilon_nondominated, to_problem
+    from ema_workbench.em_framework.optimization import (epsilon_nondominated, to_problem)
 
    # os.chdir('../runs')
 
@@ -64,7 +72,8 @@ if __name__ == '__main__':
     epsilons = [0.05] * len(model.outcomes)
     merged_archives = epsilon_nondominated(results, epsilons, problem)
 
+    print('merged_archives', merged_archives)
     # save the results
-    merged_archives.to_excel("merged_optimization_test.xlsx")
+    merged_archives.to_excel("merged_optimization_10000.xlsx")
 
 

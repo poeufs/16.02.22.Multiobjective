@@ -10,7 +10,7 @@ class MyFile:
 
     Attributes
     ----------
-    filename : str
+    file_name : str
         Path to the data file
     row : int
         Specified number of rows of the file
@@ -19,7 +19,7 @@ class MyFile:
     """
 
     def __init__(self):
-        self.filename = None
+        self.file_name = None
         self.row = None
         self.col = None
 
@@ -64,7 +64,7 @@ class utils:
                 except:
                     print("Unable to iterate")
         except:
-            print("Unable to open file" + "   " + file_name)
+            print("Unable to open file", " ", file_name)
 
         return output
 

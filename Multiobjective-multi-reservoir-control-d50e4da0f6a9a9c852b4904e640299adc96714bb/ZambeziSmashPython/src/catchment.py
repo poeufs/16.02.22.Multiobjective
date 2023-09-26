@@ -17,10 +17,10 @@ class Catchment:
     # loads the inflow of the catchment.
     def __init__(self, pCM):
         cModel = pCM.CM
-        self.inflow = utils.loadVector(pCM.inflow_file.filename, pCM.inflow_file.row) # overwritten in
+        self.inflow = utils.loadVector(pCM.inflow_file.file_name, pCM.inflow_file.row) # overwritten in
 
         if cModel == 0:
-            self.inflow = utils.loadVector(pCM.inflow_file.filename, pCM.inflow_file.row)
+            self.inflow = utils.loadVector(pCM.inflow_file.file_name, pCM.inflow_file.row)
 
     def get_inflow(self, pt):
         """ function to retrieve the inflow for day "pt" """

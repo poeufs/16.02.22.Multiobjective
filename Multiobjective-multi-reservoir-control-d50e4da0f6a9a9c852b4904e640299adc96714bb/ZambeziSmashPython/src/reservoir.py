@@ -245,28 +245,28 @@ class Reservoir:
         self.EV = pEV
 
     def setEvapRates(self, pEvap):
-        self.evap_rates = utils.loadVector(pEvap.filename, pEvap.row)
+        self.evap_rates = utils.loadVector(pEvap.file_name, pEvap.row)
 
     def setRatCurve(self, pRatCurve):
-        self.rating_curve = utils.loadMatrix(pRatCurve.filename, pRatCurve.row, pRatCurve.col)
+        self.rating_curve = utils.loadMatrix(pRatCurve.file_name, pRatCurve.row, pRatCurve.col)
 
     def setRatCurve_MinMax(self, pRatCurve_MinMax):
-        self.rating_curve_minmax = utils.loadVector(pRatCurve_MinMax.filename, pRatCurve_MinMax.col)
+        self.rating_curve_minmax = utils.loadVector(pRatCurve_MinMax.file_name, pRatCurve_MinMax.col)
 
     def setRuleCurve(self, pRuleCurve):
-        self.rule_curve = utils.loadMatrix(pRuleCurve.filename, pRuleCurve.row, pRuleCurve.col)
+        self.rule_curve = utils.loadMatrix(pRuleCurve.file_name, pRuleCurve.row, pRuleCurve.col)
 
     def setLSV_Rel(self, pLSV_Rel):
-        self.lsv_rel = utils.loadMatrix(pLSV_Rel.filename, pLSV_Rel.row, pLSV_Rel.col)
+        self.lsv_rel = utils.loadMatrix(pLSV_Rel.file_name, pLSV_Rel.row, pLSV_Rel.col)
 
     def setSurface(self, pA):
         self.A = pA
 
     def setTailwater(self, pTailWater):
-        self.tailwater = utils.loadMatrix(pTailWater.filename, pTailWater.row, pTailWater.col)
+        self.tailwater = utils.loadMatrix(pTailWater.file_name, pTailWater.row, pTailWater.col)
 
     def setMEF(self, pMEF):
-        self.minEnvFlow = utils.loadVector(pMEF.filename, pMEF.row)
+        self.minEnvFlow = utils.loadVector(pMEF.file_name, pMEF.row)
 
     def getMEF(self, pMoy):
         return self.minEnvFlow[pMoy]

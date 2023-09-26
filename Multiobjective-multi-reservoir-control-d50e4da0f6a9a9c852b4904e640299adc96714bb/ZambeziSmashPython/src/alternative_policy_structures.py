@@ -42,6 +42,8 @@ class IrrigationPolicy:
                  + self.irr_input_min[irr_district - 2]  # hdg_dn = denormalized hdg
 
         if input_inflow <= hdg_dn:
+            import numpy as np
+            np.seterr(divide='ignore', invalid='ignore')
             y = min(input_inflow, input_w * (pow(input_inflow / hdg_dn, m)))
         else:
             y = min(input_inflow, input_w)
