@@ -6,6 +6,10 @@ import numpy as np
 
 
 class ReservoirParam:
+    """ ReservoirParam class initializes the attributes of the reservoirs
+        ReservoirParam : miscellaneous
+        Parameters:
+    """
     def __init__(self):
         self.EV = int()
         self.evap_rates = MyFile()
@@ -21,14 +25,14 @@ class ReservoirParam:
 
 class Reservoir:
     """
-    A class used to represent reservoirs of the problem
+    The reservoir class has functions that contain calculculations of the catchments, using storage (s), level (h),
+    decision (u), release (r), inflow (q) and surface (S)
 
     Attributes
     ----------
-    LakeName : str
+    ReservoirName : str
         lowercase non-spaced name of the reservoir
-    ReservoirParam : miscellaneous
-        parameters specified in above construct (will be elaborated!!!!)
+
 
     Methods
     -------
@@ -41,13 +45,13 @@ class Reservoir:
     """
 
     def __init__(self, name):
-        self.LakeName = name  # assigning the name of the reservoir in constructor
+        self.ReservoirName = name  # assigning the name of the reservoir in constructor
 
     def storage_to_level(self, s):
-        # interpolation when lsv_rel exists
+        # interpolation when lsv_rel exists, takes storage (s) and returns level (h)
         if (self.lsv_rel.size > 0):
             h = utils.interp_lin(self.lsv_rel[2], self.lsv_rel[0], s)
-        # approximating with volume and cross section
+        # approximating with volume and cross-section
         else:
             h = s / self.A
         return h
@@ -62,7 +66,7 @@ class Reservoir:
         return s
 
     def level_to_surface(self, h):
-        # interpolation when lsv_rel exists      
+        # interpolation when lsv_rel exists. Takes level (h) and returns surface (S)
         if (self.lsv_rel.size > 0):
             S = utils.interp_lin(self.lsv_rel[0], self.lsv_rel[1], h)
         # approximating with cross section
@@ -71,9 +75,9 @@ class Reservoir:
         return S
 
     def min_release(self, s):
-        if (self.LakeName == "kafuegorgelower"):
+        if (self.ReservoirName == "kafuegorgelower"):
             q = 0.0
-            if (s <= self.rating_curve_minmax[0]):
+            if (s <= self.rating_curve_minmax[0]): # rating curve = water level to flow
                 q = 0
             elif (s >= self.rating_curve_minmax[1]):
                 q = self.rating_curve_minmax[2]
@@ -87,11 +91,11 @@ class Reservoir:
             if (self.rating_curve.size > 0):
                 q = utils.interp_lin(self.rating_curve[0], self.rating_curve[1], self.storage_to_level(s))
             else:
-                print(self.LakeName, " rating curve not defined")
+                print(self.ReservoirName, " rating curve not defined")
             return q
 
     def max_release(self, s):
-        if (self.LakeName == "kafuegorgelower"):
+        if (self.ReservoirName == "kafuegorgelower"):
             q = 0.0
             if (s <= self.rating_curve_minmax[0]):
                 q = 0
@@ -105,12 +109,12 @@ class Reservoir:
             if (self.rating_curve.size > 0):
                 q = utils.interp_lin(self.rating_curve[0], self.rating_curve[2], self.storage_to_level(s))
             else:
-                print(self.LakeName, " rating curve not defined")
+                print(self.ReservoirName, " rating curve not defined")
             return q
 
     def actual_release_MEF(self, uu, s, cmonth, n_sim, MEF):
 
-        if (self.LakeName == "itezhitezhi"):
+        if (self.ReservoirName == "itezhitezhi"):
             # min-Max storage-discharge relationship
             qm = self.min_release(s)
             qM = self.max_release(s)
@@ -168,7 +172,7 @@ class Reservoir:
             if (self.EV == 1):
                 self.S = self.level_to_surface(self.storage_to_level(self.s[i]))
                 self.E = self.evap_rates[cmonth - 1] / 1000 * self.S / (3600 * 2 * HH)
-            # One elif to be implemented
+            # TODO: One elif to be implemented (?)
             else:
                 self.E = 0.0
 
