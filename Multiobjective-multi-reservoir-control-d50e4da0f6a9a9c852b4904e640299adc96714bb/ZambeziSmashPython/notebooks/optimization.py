@@ -47,16 +47,16 @@ if __name__ == '__main__':
     print('within main statement')
     project_dir = os.getcwd()
 
-    ##############
-    # Run settings
-    ##############
+    ######################################################################################
+    # RUN SETTINGS
 
     # Specify the nfe and add a comment for the run save name
-    nfe = 2 #
-    seeds = 3
+    nfe = 200 #
+    seeds = 2
     epsilon_list = [0.8] * len(model.outcomes) #[0.1,] * len(model.outcomes)
+    run_comment = 'nologgerfunc'  # add a comment to recognize the run output
+    ######################################################################################
 
-    run_comment = 'debughvsave'  # add a comment to recognize the run output
     run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
     dir_runs = f"{cwd_initial}/../runs"
 
@@ -73,29 +73,6 @@ if __name__ == '__main__':
         os.chdir(output_dir)
 
     # TODO: move directory creators to utils?
-
-    def alternative_load_archives(filename): #cls,
-        """load the archives stored with the ArchiveLogger
-
-        Parameters
-        ----------
-        filename : str
-                   relative path to file
-
-        Returns
-        -------
-        dict with nfe as key and dataframe as vlaue
-        """
-
-        archives = {}
-        with tarfile.open(os.path.abspath(filename)) as fh:
-            for entry in fh.getmembers():
-                if entry.name.endswith("csv"):
-                    key = entry.name.split("/")[1][:-4]
-                    archives[int(key)] = pd.read_csv(fh.extractfile(entry), index_col=0)
-        return archives
-
-    ArchiveLogger.load_archives = alternative_load_archives
 
     ema_logging.LOG_FORMAT = "[%(name)s/%(levelname)s/%(processName)s] %(message)s"
     ema_logging.log_to_stderr(ema_logging.INFO)
@@ -127,7 +104,7 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(model) as evaluator:
         for i in tqdm(range(seeds)): # for every seed
-            n = i+1
+            #n = i+1
             #os.chdir(output_dir)
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
@@ -158,12 +135,12 @@ if __name__ == '__main__':
             print("run name is", run_label)
 
             # Save the results of this seed
-            results_file_name = f"results_seed{n}.csv"
-            convergence_file_name = f"convergence{n}.csv"
+            results_file_name = f"results_seed{i}.csv"
+            convergence_file_name = f"convergence{i}.csv"
             print('results_file_name is', results_file_name)
 
             cwd = os.getcwd()
-            results.to_csv(os.path.join(cwd, results_file_name))
+            results.to_csv(os.path.join(cwd, results_file_name), index=False)
             convergence.to_csv(os.path.join(cwd, convergence_file_name), index=False)
             print("cwd at to_csv:", cwd)
 
@@ -179,96 +156,14 @@ if __name__ == '__main__':
     print("results_list type", type(results_list))
 
     #############
-    # CONVERGENCE #TODO: move to notebook
-    #############
-
-    # Change directory if needed
-    if os.getcwd() != project_dir:
-        print(f'Current directory is {os.getcwd()}')
-        os.chdir(project_dir)
-        print(f'Changed current directory to {project_dir}')
-
-    # Initialise the archives list
-    all_archives = []
-
-    # Load the archives
-    for i in range(seeds):
-        archives = ArchiveLogger.load_archives(f"{archives_dir_path}/{i}.csv")
-        #archives.items()[nfe] =
-        #archives = archives.loc[:, ~archives.columns.str.contains('^Unnamed')]
-        all_archives.append(archives)
-
-    # Define the problem
-    problem = to_problem(model, searchover="levers")
-    print('problem type is', type(problem))
-
-    # Define the reference list
-    reference_set = epsilon_nondominated(results_list, [0.8] * len(model.outcomes), problem)  # [0.05]
-    print('reference_set', reference_set)
-    print('reference_set type is', type(reference_set))
-
-    hv = HypervolumeMetric(reference_set, problem)
-
-    metrics_by_seed = []
-    for archives in all_archives:
-        metrics = []
-        for nfe, archive in archives.items():
-            scores = {
-                "hypervolume": hv.calculate(archive),
-                "nfe": int(nfe),
-            }
-            metrics.append(scores)
-        metrics = pd.DataFrame.from_dict(metrics)
-
-        # sort metrics by number of function evaluations
-        metrics.sort_values(by="nfe", inplace=True)
-        cwd = os.getcwd()
-        print('cwd 228 is', cwd)
-        if cwd != project_dir:
-            print(f'Current directory is {cwd}')
-            os.chdir(project_dir)
-            print(f'Changed current directory to {project_dir}')
-        metrics_name = 'metrics.csv'
-        metrics.to_csv(os.path.join(cwd, metrics_name))
-
-        metrics_by_seed.append(metrics)
-
-    # Visualize convergence metrics
-    sns.set_style("white")
-    fig, axes = plt.subplots(nrows=2, figsize=(8, 12), sharex=True)
-
-    ax1, ax2 = axes
-
-    for metrics, convergence in zip(metrics_by_seed, convergences):
-        ax1.plot(metrics.nfe, metrics.hypervolume)
-        ax1.set_ylabel("hypervolume")
-
-        ax2.plot(convergence.nfe, convergence.epsilon_progress)
-        ax2.set_ylabel("$\epsilon$ progress")
-
-        '''
-        ax3.plot(metrics.nfe, metrics.generational_distance)
-        ax3.set_ylabel("generational distance")
-
-        ax4.plot(metrics.nfe, metrics.epsilon_indicator)
-        ax4.set_ylabel("epsilon indicator")
-
-        ax5.plot(metrics.nfe, metrics.inverted_gd)
-        ax5.set_ylabel("inverted generational\ndistance")
-
-        ax6.plot(metrics.nfe, metrics.spacing)
-        ax6.set_ylabel("spacing")
-        '''
-
-    # ax6.set_xlabel("nfe")
-
-    sns.despine(fig)
-
-    plt.show()
-
-    #############
     # MERGE SEEDS
     #############
+
+    if cwd != output_dir:
+        print(f'Current directory is {cwd}')
+        os.chdir(output_dir)
+        print(f'Changed current directory to {output_dir}')
+
     # Merge the 5 runs of the optimization
     problem = to_problem(model, searchover="levers")
     epsilons = [0.8] * len(model.outcomes) #0.05
@@ -278,5 +173,5 @@ if __name__ == '__main__':
 
     # Save the results
     merged_results_name = 'merged_results.csv'
-    merged_results.to_csv(os.path.join(cwd, merged_results_name))
+    merged_results.to_csv(os.path.join(cwd, merged_results_name), index=False)
 
