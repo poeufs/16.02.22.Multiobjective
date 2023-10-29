@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-import tarfile
 from tqdm import tqdm
 from datetime import datetime
-from model_zambezi_OPT import ModelZambezi
+
 from ema_workbench import (MultiprocessingEvaluator, ema_logging, RealParameter, ScalarOutcome, Constant,
                            Model, HypervolumeMetric, save_results)
 from ema_workbench.em_framework.optimization import (GenerationalBorg, epsilon_nondominated, to_problem, ArchiveLogger,
@@ -19,6 +18,8 @@ if not os.path.exists("../src"):
     os.chdir("../../src")
 else:
     os.chdir('../src')
+
+from model_zambezi_OPT import ModelZambezi
 
 cwd_initial = os.getcwd()
 print("cwd line 17 is: ", cwd_initial)
@@ -54,7 +55,7 @@ if __name__ == '__main__':
     nfe = 200 #
     seeds = 2
     epsilon_list = [0.8] * len(model.outcomes) #[0.1,] * len(model.outcomes)
-    run_comment = 'nologgerfunc'  # add a comment to recognize the run output
+    run_comment = 'HPCtest1'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
