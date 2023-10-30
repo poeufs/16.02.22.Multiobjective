@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import sys
 from tqdm import tqdm
 from datetime import datetime
 
@@ -19,10 +20,13 @@ if not os.path.exists("../src"):
 else:
     os.chdir('../src')
 
-from model_zambezi_OPT import ModelZambezi
+sys.path.append("..")
+sys.path.append(".")
 
 cwd_initial = os.getcwd()
-print("cwd line 17 is: ", cwd_initial)
+print("cwd line 26 is: ", cwd_initial)
+
+from model_zambezi_OPT import ModelZambezi
 
 ZambeziProblem = ModelZambezi()
 
