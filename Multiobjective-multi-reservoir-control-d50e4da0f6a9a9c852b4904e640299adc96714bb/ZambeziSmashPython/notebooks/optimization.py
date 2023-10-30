@@ -32,7 +32,6 @@ ZambeziProblem = ModelZambezi()
 
 def model_wrapper(**kwargs):
     input = [kwargs['v' + str(i)] for i in range(len(kwargs))]
-    # print('len kwargs is', len(kwargs)) = 230
     Hydropower, Environment, Irrigation = tuple(ZambeziProblem.evaluate(np.array(input)))
     return Hydropower, Environment, Irrigation
 
@@ -56,10 +55,10 @@ if __name__ == '__main__':
     # RUN SETTINGS
 
     # Specify the nfe and add a comment for the run save name
-    nfe = 200 #
-    seeds = 2
-    epsilon_list = [0.8] * len(model.outcomes) #[0.1,] * len(model.outcomes)
-    run_comment = 'HPCtest1'  # add a comment to recognize the run output
+    nfe = 500000
+    seeds = 5
+    epsilon_list = [0.1] * len(model.outcomes)
+    run_comment = 'BaseCase'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
@@ -109,8 +108,6 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(model) as evaluator:
         for i in tqdm(range(seeds)): # for every seed
-            #n = i+1
-            #os.chdir(output_dir)
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
             # the archive logger writes the archive to disk for every x nfe
@@ -120,7 +117,7 @@ if __name__ == '__main__':
                     "./archives",
                     [lever.name for lever in model.levers],
                     [outcome.name for outcome in model.outcomes],
-                    base_filename=f"{i}.csv", #tar.gz
+                    base_filename=f"{i}.csv",
                 ),
                 EpsilonProgress(),
                 #Hypervolume(minimum=[-1e9] * len(model.outcomes), maximum=[1e9] * len(model.outcomes)),
@@ -128,9 +125,9 @@ if __name__ == '__main__':
 
             results, convergence = evaluator.optimize(
                 algorithm=GenerationalBorg,
-                nfe=nfe,  # 500,000 #250
+                nfe=nfe,
                 searchover="levers",
-                epsilons=[0.9 ] * len(model.outcomes),  # 0.05, 0,1
+                epsilons=epsilon_list,
                 convergence=convergence_metrics,
             )
 
@@ -171,7 +168,7 @@ if __name__ == '__main__':
 
     # Merge the 5 runs of the optimization
     problem = to_problem(model, searchover="levers")
-    epsilons = [0.8] * len(model.outcomes) #0.05
+    epsilons = [0.05] * len(model.outcomes)
     merged_results = epsilon_nondominated(results_list, epsilons, problem)
 
     print('merged_results', merged_results, 'saved to: ', os.getcwd())
