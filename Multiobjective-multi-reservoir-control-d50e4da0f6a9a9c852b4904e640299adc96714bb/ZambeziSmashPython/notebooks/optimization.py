@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # RUN SETTINGS
 
     # Specify the nfe and add a comment for the run save name
-    nfe = 500000
+    nfe = 35000
     seeds = 5
     epsilon_list = [0.1] * len(model.outcomes)
     run_comment = 'BaseCase'  # add a comment to recognize the run output
