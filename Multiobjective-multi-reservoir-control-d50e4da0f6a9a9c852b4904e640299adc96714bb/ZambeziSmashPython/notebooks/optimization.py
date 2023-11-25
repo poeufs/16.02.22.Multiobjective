@@ -52,12 +52,12 @@ if __name__ == '__main__':
     project_dir = os.getcwd()
 
     ######################################################################################
-    # RUN SETTINGS
-
+    ################################# RUN SETTINGS #######################################
+    ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 35000
-    seeds = 5
-    epsilon_list = [0.1] * len(model.outcomes)
+    nfe = 150000
+    seeds = 1 #5
+    epsilon_list = [0.2, 0.5, 0.1] #[0.1] * len(model.outcomes)
     run_comment = 'BaseCase'  # add a comment to recognize the run output
     ######################################################################################
 
