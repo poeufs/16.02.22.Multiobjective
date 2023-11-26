@@ -4,11 +4,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import sys
+
+print(sys.path)
+
 from tqdm import tqdm
 from datetime import datetime
 
 from ema_workbench import (MultiprocessingEvaluator, ema_logging, RealParameter, ScalarOutcome, Constant,
-                           Model, HypervolumeMetric, save_results)
+                           Model)
 from ema_workbench.em_framework.optimization import (GenerationalBorg, epsilon_nondominated, to_problem, ArchiveLogger,
                                                      EpsilonProgress, Hypervolume)
 #from ema_workbench import (GenerationalDistanceMetric, EpsilonIndicatorMetric, InvertedGenerationalDistanceMetric,
