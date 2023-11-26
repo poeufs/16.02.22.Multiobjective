@@ -32,9 +32,10 @@ ZambeziProblem = ModelZambezi()
 
 def model_wrapper(**kwargs):
     input = [kwargs['v' + str(i)] for i in range(len(kwargs))]
-    Hydropower, Environment, Irrigation = tuple(ZambeziProblem.evaluate(np.array(input)))
-    return Hydropower, Environment, Irrigation
-
+    Hydropower, Environment, Irrigation, Irrigation2, Irrigation3, Irrigation4, Irrigation5, Irrigation6, Irrigation7, \
+        Irrigation8, Irrigation9 = tuple(ZambeziProblem.evaluate(np.array(input)))
+    return Hydropower, Environment, Irrigation, Irrigation2, Irrigation3, Irrigation4, Irrigation5, Irrigation6, \
+        Irrigation7, Irrigation8, Irrigation9
 # specify model
 model = Model('zambeziproblem', function=model_wrapper)
 
@@ -44,7 +45,16 @@ model.levers = [RealParameter('v' + str(i), -1, 1) for i in range(ZambeziProblem
 # specify outcomes
 model.outcomes = [ScalarOutcome('Hydropower', ScalarOutcome.MINIMIZE),  # Minimize, because deficits
                   ScalarOutcome('Environment', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation', ScalarOutcome.MINIMIZE)]
+                  ScalarOutcome('Irrigation', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation2', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation3', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation4', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation5', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation6', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation7', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation8', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation9', ScalarOutcome.MINIMIZE),
+                  ]
 
 
 if __name__ == '__main__':
@@ -55,10 +65,10 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 150000
+    nfe = 150000 #150000 #35000
     seeds = 1 #5
-    epsilon_list = [0.2, 0.5, 0.1] #[0.1] * len(model.outcomes)
-    run_comment = 'BaseCase'  # add a comment to recognize the run output
+    epsilon_list = [0.9] * len(model.outcomes) #[0.2, 0.5, 0.1] #[0.1] * len(model.outcomes)
+    run_comment = 'irr_test'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"

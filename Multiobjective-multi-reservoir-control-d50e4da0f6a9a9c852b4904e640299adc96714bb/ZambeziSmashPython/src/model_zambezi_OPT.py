@@ -331,7 +331,6 @@ class ModelZambezi:
         # Create the objectives as an empty array
         obj = np.empty(0)
 
-        #
         self.overarching_policy.assign_free_parameters(var)
 
         if (self.Nsim < 2):  # single simulation
@@ -360,9 +359,9 @@ class ModelZambezi:
 
         return list(obj)
 
-    ########
-    # SIMULATION
-    ########
+    ##############
+    # SIMULATION #
+    ##############
 
     @property
     def simulate(self):
@@ -439,7 +438,8 @@ class ModelZambezi:
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
             gg_irr5_NormDef, gg_irr6_NormDef, gg_irr7_NormDef, gg_irr8_NormDef, \
-            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot = tuple(26 * [np.empty(0)])
+            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot, deficitIRR_2, deficitIRR_3, deficitIRR_4, \
+            deficitIRR_5, deficitIRR_6, deficitIRR_7, deficitIRR_8, deficitIRR_9 = tuple(34 * [np.empty(0)]) #26
         input, outputDEF = tuple([np.empty(0), np.empty(0)])
 
         # initial condition
@@ -455,11 +455,14 @@ class ModelZambezi:
         # Average release from the ITT reservoir that reaches the KGU three months later per day
         r_itt_delay[0] = 0  # September 1985 [m^3/sec] #
         r_itt_delay[
-            1] = 56.183290322580640  # October 1985 [m^3/sec] but divided for the number of days in January 1986 when it actually enters KGU #
+            1] = 56.183290322580640 # October 1985 [m^3/sec] but divided for the number of days in January 1986 when it
+                                    # actually enters KGU
         r_itt_delay[
-            2] = 59.670678571428570  # November 1985 [m^3/sec] but divided for the number of days in February 1986 when it actually enters KGU #
+            2] = 59.670678571428570 # November 1985 [m^3/sec] but divided for the number of days in February 1986 when
+                                    # it actually enters KGU
         r_itt_delay[
-            3] = 101.7307419354839  # December 1985 [m^3/sec] but divided for the number of days in March 1986 when it actually enters KGU #
+            3] = 101.7307419354839  # December 1985 [m^3/sec] but divided for the number of days in March 1986 when it
+                                    # actually enters KGU
 
         ##################
         # Run simulation
@@ -470,8 +473,8 @@ class ModelZambezi:
             moy[t] = (self.initMonth + t - 1) % (self.T) + 1
 
             # inflows read from
-            q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)  # Itezhitezhi inflow @ Kafue Hook Bridge #
-
+            q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)
+                # Itezhitezhi inflow @ Kafue Hook Bridge
             q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(t)
                 # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
             q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(t)
@@ -522,7 +525,7 @@ class ModelZambezi:
             s_kgl[t + 1] = sd_rd[0]
             r_kgl[t + 1] = sd_rd[1]
 
-            # Irrigation district 2. Dependent on Cuando and KaLat
+            # Irrigation district 2. Dependent on Cuando, Batoka Gorge and KaLat
             r_irr2[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [q_Bg + q_Cuando + q_KaLat, self.irr_demand_dict["irr_demand2"][moy[t] - 1], 2,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
@@ -586,7 +589,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Itt[moy[t] - 1])
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
-            # 2. Kafue Gorge Upper
+            # 2. Kafue Gorge Upper (kgu)
             h_kgu[t] = self.KafueGorgeUpper.storage_to_level(s_kgu[t])
             qTurb_Temp = min(r_kgu[t + 1], 6 * 42)
 
@@ -596,7 +599,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Kgu[moy[t] - 1])
             gg_hydKGU = np.append(gg_hydKGU, hydTemp_dist)  #
 
-            # Kariba North
+            # Kariba North (ka)
             h_ka[t] = self.Kariba.storage_to_level(s_ka[t])  #
             qTurb_Temp_N = min(r_ka[t + 1] * 0.488,
                                6 * 200)  # Kariba North has an efficiency of 48% -. 49% of the total release goes through Kariba North #
@@ -648,7 +651,8 @@ class ModelZambezi:
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
 
-            # Irrigation deficit calculation
+
+            # IRRIGATION DEFICIT CALCULATION
             # Irr district 2
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand2"][moy[t] - 1] - r_irr2[t + 1], 0), 2)
             gg_irr2 = np.append(gg_irr2, irrDef_Temp)  # SQUARED irrigation deficit
@@ -696,6 +700,15 @@ class ModelZambezi:
                                            t] + gg_irr6_NormDef[t] + gg_irr7_NormDef[t] + gg_irr8_NormDef[t] +
                                        gg_irr9_NormDef[t])  # SQUARED irrigation deficit
 
+            deficitIRR_2 = np.append(deficitIRR_2, gg_irr2_NormDef[t])
+            deficitIRR_3 = np.append(deficitIRR_3, gg_irr3_NormDef[t])
+            deficitIRR_4 = np.append(deficitIRR_4, gg_irr4_NormDef[t])
+            deficitIRR_5 = np.append(deficitIRR_5, gg_irr5_NormDef[t])
+            deficitIRR_6 = np.append(deficitIRR_6, gg_irr6_NormDef[t])
+            deficitIRR_7 = np.append(deficitIRR_7, gg_irr7_NormDef[t])
+            deficitIRR_8 = np.append(deficitIRR_8, gg_irr8_NormDef[t])
+            deficitIRR_9 = np.append(deficitIRR_9, gg_irr9_NormDef[t])
+
             # DELTA ENVIRONMENT DEFICIT 
             envDef_Temp = pow(
                 max(self.qDelta[moy[t] - 1] - (r_cb[t + 1] - r_irr7[t + 1] - r_irr8[t + 1] + q_Shire - r_irr9[t + 1]),
@@ -716,6 +729,16 @@ class ModelZambezi:
         JJ = np.append(JJ, np.mean(deficitHYD_tot))
         JJ = np.append(JJ, np.mean(deficitENV_tot))
         JJ = np.append(JJ, np.mean(deficitIRR_tot))
+        JJ = np.append(JJ, np.mean(deficitIRR_2))
+        JJ = np.append(JJ, np.mean(deficitIRR_3))
+        JJ = np.append(JJ, np.mean(deficitIRR_4))
+        JJ = np.append(JJ, np.mean(deficitIRR_5))
+        JJ = np.append(JJ, np.mean(deficitIRR_6))
+        JJ = np.append(JJ, np.mean(deficitIRR_7))
+        JJ = np.append(JJ, np.mean(deficitIRR_8))
+        JJ = np.append(JJ, np.mean(deficitIRR_9))
+
+
 
         return JJ
 
