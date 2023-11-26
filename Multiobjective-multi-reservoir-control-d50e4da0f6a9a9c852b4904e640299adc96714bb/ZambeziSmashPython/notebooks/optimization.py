@@ -65,10 +65,10 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 150000 #150000 #35000
+    nfe = 1 #150000 #35000
     seeds = 1 #5
     epsilon_list = [0.9] * len(model.outcomes) #[0.2, 0.5, 0.1] #[0.1] * len(model.outcomes)
-    run_comment = 'irr_test'  # add a comment to recognize the run output
+    run_comment = 'irr_test_cwd'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
