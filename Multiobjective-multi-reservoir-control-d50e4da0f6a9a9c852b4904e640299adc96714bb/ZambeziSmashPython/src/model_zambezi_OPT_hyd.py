@@ -1,5 +1,5 @@
 # ===========================================================================
-# Name        : model_zambezi_OPT.py
+# Name        : model_zambezi_OPT_hyd.py
 # Author      : YasinS, adapted from JazminZ & ?
 # Version     : 0.05
 # Copyright   : Your copyright notice
@@ -49,9 +49,8 @@ class ModelZambezi:
 
         for catchment_name in catchment_list:
             catch_param_name = catchment_name + "_catch_param"
-            self.catchment_param_dict[catch_param_name] = CatchmentParam() # creates a dictionary for each catchment
+            self.catchment_param_dict[catch_param_name] = CatchmentParam()  # creates a dictionary for each catchment
             # with two keys defined in CatchmentParam: CM and inflow_file
-
 
         # Reservoir parameter objects (stored seperately
         # to facilitate settings file reference):
@@ -78,8 +77,6 @@ class ModelZambezi:
         # CREATE RESERVOIRS
         ###################
         # each of the 5 existing reservoirs is created here
-
-
 
         # 1. KAFUE GORGE UPPER (KGU) reservoir
         self.KafueGorgeUpper = Reservoir("kafuegorgeupper")  # creating a new object from corresponding Reservoir class
@@ -373,7 +370,7 @@ class ModelZambezi:
         Parameters
         ----------
         self : ModelZambezi object
-            
+
         Returns
         -------
         JJ : np.array
@@ -434,7 +431,7 @@ class ModelZambezi:
             hydTemp, hydTemp_dist, hydTemp_N, hydTemp_S, irrDef_Temp, irrDefNorm_Temp, \
             envDef_Temp, qTotIN, qTotIN_1 = tuple(20 * [float()])  # catchment inflows, turbine inflows,
         sd_rd = np.empty(0)  # (storage daily_release daily: storage and release resulting from daily integration
-        uu = np.empty(0) # decision array
+        uu = np.empty(0)  # decision array
         gg_hydKGU, gg_hydITT, gg_hydKA, gg_hydCB, gg_hydKGL, gg_hydVF, \
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
@@ -475,17 +472,17 @@ class ModelZambezi:
             q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)  # Itezhitezhi inflow @ Kafue Hook Bridge #
 
             q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(t)
-                # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
+            # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
             q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(t)
-                # Kariba inflow @ Victoria Falls increased by +10%
+            # Kariba inflow @ Victoria Falls increased by +10%
             q_Cb = self.catchment_dict["CbCatchment"].get_inflow(t)
-                # Cahora Bassa inflow (Luangwa and other tributaries)
+            # Cahora Bassa inflow (Luangwa and other tributaries)
             q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)
-                # Kariba inflow @ Cuando river #
+            # Kariba inflow @ Cuando river #
             q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)
-                # Shire discharge (upstream of the Delta) #
+            # Shire discharge (upstream of the Delta) #
             q_Bg = self.catchment_dict["BgCatchment"].get_inflow(t)
-                # Kariba inflow @ Victoria Falls increased by +10% #
+            # Kariba inflow @ Victoria Falls increased by +10% #
 
             # Calculate the total inflow
             qTotIN = q_Itt + q_KafueFlats + q_KaLat + q_Cb + q_Cuando + q_Shire + q_Bg
@@ -504,7 +501,7 @@ class ModelZambezi:
             s_itt[t + 1] = sd_rd[0]
             r_itt[t + 1] = sd_rd[1]
             r_itt_delay[t + 3] = r_itt[t + 1] * (self.integrationStep[moy[t] - 1]) / (
-            self.integrationStep_delay[moy[t] - 1])
+                self.integrationStep_delay[moy[t] - 1])
 
             # Irrigation district 4, dependent on KafueFlats
             r_irr4[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
@@ -552,7 +549,7 @@ class ModelZambezi:
             # 5. CahoraBassa
             sd_rd = self.CahoraBassa.integration(12 * self.integrationStep[moy[t] - 1], t, s_cb[t], u_cb[t],
                                                  q_Cb + r_kgl[t + 1] + r_ka[t + 1] - (
-                                                             r_irr3[t + 1] + r_irr5[t + 1] + r_irr6[t + 1]), moy[t])
+                                                         r_irr3[t + 1] + r_irr5[t + 1] + r_irr6[t + 1]), moy[t])
             s_cb[t + 1] = sd_rd[0]  #
             r_cb[t + 1] = sd_rd[1]  #
             del sd_rd  #
@@ -584,7 +581,7 @@ class ModelZambezi:
 
             headTemp = (40.50 - (1030.5 - h_itt[t]))
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.89 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year]
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year]
             hydTemp_dist = abs(hydTemp - self.tp_Itt[moy[t] - 1])
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
@@ -594,7 +591,7 @@ class ModelZambezi:
 
             headTemp = (397 - (977.6 - h_kgu[t]))
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.61 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             hydTemp_dist = abs(hydTemp - self.tp_Kgu[moy[t] - 1])
             gg_hydKGU = np.append(gg_hydKGU, hydTemp_dist)  #
 
@@ -604,14 +601,14 @@ class ModelZambezi:
                                6 * 200)  # Kariba North has an efficiency of 48% -. 49% of the total release goes through Kariba North #
             headTemp = (108 - (489.5 - h_ka[t]))  #
             hydTemp_N = ((qTurb_Temp_N * headTemp * 1000 * 9.81 * 0.48 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
 
             # Kariba South
             qTurb_Temp_S = min(r_ka[t + 1] * 0.512, 6 * 140)  #
 
             headTemp = (110 - (489.5 - h_ka[t]))  #
             hydTemp_S = ((qTurb_Temp_S * headTemp * 1000 * 9.81 * 0.51 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
 
             hydTemp = hydTemp_N + hydTemp_S  #
             hydTemp_dist = abs(hydTemp - self.tp_Ka[moy[t] - 1])
@@ -623,7 +620,7 @@ class ModelZambezi:
 
             headTemp = (128 - (331 - h_cb[t]))  #
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.73 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             hydTemp_dist = abs(hydTemp - self.tp_Cb[moy[t] - 1])
             gg_hydCB = np.append(gg_hydCB, hydTemp_dist)  #
 
@@ -633,7 +630,7 @@ class ModelZambezi:
 
             headTemp = (182.7 - (586 - h_kgl[t]))  #
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.88 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             hydTemp_dist = abs(hydTemp - self.tp_Kgl[moy[t] - 1])
             gg_hydKGL = np.append(gg_hydKGL, hydTemp_dist)  #
 
@@ -642,7 +639,7 @@ class ModelZambezi:
                              (5 * 1.2 + 6 * 12 + 6 * 12))  #
             headTemp = 100  #
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.88 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             gg_hydVF = np.append(gg_hydVF, hydTemp)  #
 
             # Total hydropower deficit
@@ -654,7 +651,6 @@ class ModelZambezi:
             deficitHYD_ka = np.append(deficitHYD_ka, gg_hydKA[t])
             deficitHYD_cb = np.append(deficitHYD_cb, gg_hydCB[t])
             deficitHYD_kgl = np.append(deficitHYD_kgl, gg_hydKGL[t])
-
 
             # Irrigation deficit calculation
             # Irr district 2
@@ -704,7 +700,7 @@ class ModelZambezi:
                                            t] + gg_irr6_NormDef[t] + gg_irr7_NormDef[t] + gg_irr8_NormDef[t] +
                                        gg_irr9_NormDef[t])  # SQUARED irrigation deficit
 
-            # DELTA ENVIRONMENT DEFICIT 
+            # DELTA ENVIRONMENT DEFICIT
             envDef_Temp = pow(
                 max(self.qDelta[moy[t] - 1] - (r_cb[t + 1] - r_irr7[t + 1] - r_irr8[t + 1] + q_Shire - r_irr9[t + 1]),
                     0), 2)
@@ -718,7 +714,7 @@ class ModelZambezi:
 
         # TODO: check if correct
         # NOT Super clear if below implementation is correct. Check!!!!
-        # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) // 
+        # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) //
 
         JJ = np.empty(0)
         JJ = np.append(JJ, np.mean(deficitHYD_tot))
@@ -750,7 +746,7 @@ class ModelZambezi:
         ----------
         defp : float
         w : float
-            
+
         Returns
         -------
         def_norm : float
@@ -766,6 +762,7 @@ class ModelZambezi:
 
     def readFileSettings(self):
         """ Read the settings file from data folder """
+
         def nested_getattr(object, nested_attr_list):
 
             obj_copy = object
@@ -802,14 +799,15 @@ class ModelZambezi:
                 setattr(object, name, str(row["Value"]))
 
         # Load number_days_month for integration
-        self.integrationStep = utils.loadIntVector("../data/number_days_month.txt", self.T) #number of days in month x
-        self.integrationStep_delay = utils.loadIntVector("../data/number_days_month_delay.txt", self.T) # n of days
-            # month x + 3
+        self.integrationStep = utils.loadIntVector("../data/number_days_month.txt", self.T)  # number of days in month x
+        self.integrationStep_delay = utils.loadIntVector("../data/number_days_month_delay.txt", self.T)  # n of days
+        # month x + 3
 
         # self.moy_file = utils.loadIntVector("../data/moy_1986_2005.txt", self.H)
 
-        self.catchment_param_dict["Itt_catch_param"].CM = 1 # What is the use of CM =1?
-        self.catchment_param_dict["Itt_catch_param"].inflow_file.file_name = "../data/qInfItt_1January1986_31Dec2005.txt"
+        self.catchment_param_dict["Itt_catch_param"].CM = 1  # What is the use of CM =1?
+        self.catchment_param_dict[
+            "Itt_catch_param"].inflow_file.file_name = "../data/qInfItt_1January1986_31Dec2005.txt"
         self.catchment_param_dict["Itt_catch_param"].inflow_file.row = self.H
 
         self.catchment_param_dict["KafueFlats_catch_param"].CM = 1
@@ -847,6 +845,7 @@ class ModelZambezi:
 
 class policy_parameters_construct:
     """ Load from settings file to initialize policy parameter constructs"""
+
     def __init__(self):
         self.tPolicy = int()
         self.policyInput = int()
@@ -859,6 +858,7 @@ class policy_parameters_construct:
 
 class irr_function_parameters:
     """ Load from settings file to initialize irrigation function parameter constructs"""
+
     def __init__(self):
         self.num_irr = int()
         self.mParam = np.empty(0)
