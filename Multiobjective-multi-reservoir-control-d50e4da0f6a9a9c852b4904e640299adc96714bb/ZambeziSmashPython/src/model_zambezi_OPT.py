@@ -439,9 +439,7 @@ class ModelZambezi:
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
             gg_irr5_NormDef, gg_irr6_NormDef, gg_irr7_NormDef, gg_irr8_NormDef, \
-            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot, deficitHYD_itt, deficitHYD_kgu, \
-            deficitHYD_ka, deficitHYD_cb, deficitHYD_kgl = tuple(31 * [np.empty(0)])
-
+            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot = tuple(26 * [np.empty(0)])
         input, outputDEF = tuple([np.empty(0), np.empty(0)])
 
         # initial condition
@@ -649,12 +647,6 @@ class ModelZambezi:
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
-            deficitHYD_itt = np.append(deficitHYD_itt, gg_hydITT[t])
-            deficitHYD_kgu = np.append(deficitHYD_kgu, gg_hydKGU[t])
-            deficitHYD_ka = np.append(deficitHYD_ka, gg_hydKA[t])
-            deficitHYD_cb = np.append(deficitHYD_cb, gg_hydCB[t])
-            deficitHYD_kgl = np.append(deficitHYD_kgl, gg_hydKGL[t])
-
 
             # Irrigation deficit calculation
             # Irr district 2
@@ -724,11 +716,6 @@ class ModelZambezi:
         JJ = np.append(JJ, np.mean(deficitHYD_tot))
         JJ = np.append(JJ, np.mean(deficitENV_tot))
         JJ = np.append(JJ, np.mean(deficitIRR_tot))
-        JJ = np.append(JJ, np.mean(deficitHYD_itt))
-        JJ = np.append(JJ, np.mean(deficitHYD_kgu))
-        JJ = np.append(JJ, np.mean(deficitHYD_ka))
-        JJ = np.append(JJ, np.mean(deficitHYD_cb))
-        JJ = np.append(JJ, np.mean(deficitHYD_kgl))
 
         return JJ
 
