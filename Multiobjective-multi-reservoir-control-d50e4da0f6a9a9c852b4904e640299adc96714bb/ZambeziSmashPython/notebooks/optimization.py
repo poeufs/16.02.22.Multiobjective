@@ -32,8 +32,8 @@ ZambeziProblem = ModelZambezi()
 
 def model_wrapper(**kwargs):
     input = [kwargs['v' + str(i)] for i in range(len(kwargs))]
-    Hydropower, Environment, Irrigation, HydropowerITT, HydropowerKGU, HydropowerKA, HydropowerCB, HydropowerKGL = tuple(ZambeziProblem.evaluate(np.array(input)))
-    return Hydropower, Environment, Irrigation, HydropowerITT, HydropowerKGU, HydropowerKA, HydropowerCB, HydropowerKGL
+    Hydropower, Environment, Irrigation = tuple(ZambeziProblem.evaluate(np.array(input)))
+    return Hydropower, Environment, Irrigation
 
 # specify model
 model = Model('zambeziproblem', function=model_wrapper)
@@ -44,12 +44,7 @@ model.levers = [RealParameter('v' + str(i), -1, 1) for i in range(ZambeziProblem
 # specify outcomes
 model.outcomes = [ScalarOutcome('Hydropower', ScalarOutcome.MINIMIZE),  # Minimize, because deficits
                   ScalarOutcome('Environment', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerITT', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerKGU', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerKA', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerCB', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerKGL', ScalarOutcome.MINIMIZE),
+                  ScalarOutcome('Irrigation', ScalarOutcome.MINIMIZE)
                   ]
 
 if __name__ == '__main__':
@@ -60,14 +55,14 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 2 #150000 1 seed; 35000 5 seeds in HPC
+    nfe = 150000 # 1 seed; 35000 5 seeds in HPC
     seeds = 1 #5
-    epsilon_list = [0.9] * len(model.outcomes) # Test values: [0.9] * len(model.outcomes), after observing base case: [0.2, 0.5, 0.1], previous
+    epsilon_list = [0.2, 0.5, 0.1] # Test values: [0.9] * len(model.outcomes), after observing base case: [0.2, 0.5, 0.1], previous
     # version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'hydro_test'  # add a comment to recognize the run output
+    run_comment = 'BaseCase'  # add a comment to recognize the run output
     ######################################################################################
 
-    run_label = f"Hyd_{run_comment}_{nfe}nfe_{seeds}seed" # BC = BaseCase (3 objectives)
+    run_label = f"BC_{run_comment}_{nfe}nfe_{seeds}seed" # BC = BaseCase (3 objectives)
     dir_runs = f"{cwd_initial}/../runs"
 
     # Check if the directory already exists and create it if it doesn't
