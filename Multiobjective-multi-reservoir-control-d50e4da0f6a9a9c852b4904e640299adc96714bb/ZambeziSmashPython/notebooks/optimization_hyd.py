@@ -26,7 +26,7 @@ sys.path.append(".")
 cwd_initial = os.getcwd()
 print("cwd line 26 is: ", cwd_initial)
 
-from model_zambezi_OPT import ModelZambezi
+from model_zambezi_OPT_hyd import ModelZambezi
 
 ZambeziProblem = ModelZambezi()
 
