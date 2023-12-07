@@ -297,7 +297,7 @@ class ModelZambezi:
         self.qDelta = utils.loadVector("../data/MEF_Delta.txt", self.T)  # [m^3/sec]
 
     def getNobj(self):  # the number of objectives is set in the settings_file (3 in 09.23)
-        return self.Nobj
+        return self.NobjIRR
 
     def getNvar(self):  # the number of variables is set in the settings_file (230 in 09.23)
         return self.Nvar
