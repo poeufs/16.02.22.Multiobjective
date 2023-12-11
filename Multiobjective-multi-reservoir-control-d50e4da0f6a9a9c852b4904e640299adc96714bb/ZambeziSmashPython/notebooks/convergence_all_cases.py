@@ -183,9 +183,9 @@ problem = to_problem(model, searchover="levers")
 os.getcwd()
 
 # LOAD THE RUN
-nfe = 2 #
-seeds = 1
-run_comment = 'irr_test'
+nfe = 2  # 150000 1 seed; 35000 5 seeds in HPC
+seeds = 1  # 5
+run_comment = 'hyd_NOBJhyd'  # add a comment to recognize the run output
 run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
 
 os.chdir(f'../runs/{run_label}')
