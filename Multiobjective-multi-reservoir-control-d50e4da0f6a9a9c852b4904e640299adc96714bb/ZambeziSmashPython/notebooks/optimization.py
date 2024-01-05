@@ -58,10 +58,10 @@ if __name__ == '__main__':
     ######################################################################################
 
     # Specify the nfe and add a comment for the run save name
-    nfe = 150000 # 1 seed; 35000 5 seeds in HPC
-    seeds = 1 #5
-    epsilon_list = [0.2, 0.5, 0.1] # Test values: [0.9] * len(model.outcomes), after observing base case: [0.2, 0.5, 0.1], previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'BaseCase'  # add a comment to recognize the run output
+    nfe = 80000 # 1 seed; 35000 5 seeds in HPC
+    seeds = 5 #5
+    epsilon_list = [0.2, 0.5, 0.3] # Test values: [0.9] * len(model.outcomes), after observing base case: [0.2, 0.5, 0.1], previous version's epsilons: [0.1] * len(model.outcomes)
+    run_comment = 'BC'  # add a comment to recognize the run output
 
     ######################################################################################
 
