@@ -297,7 +297,7 @@ class ModelZambezi:
         ### end of difference
 
     def getNobj(self):
-        return self.NobjIRR
+        return self.Nobj
 
     def getNvar(self):
         return self.Nvar
