@@ -9,7 +9,7 @@ from ema_workbench.em_framework.optimization import (GenerationalBorg, epsilon_n
                                                      EpsilonProgress)
 
 os.chdir('../src')
-
+'''
 #############
 ### BASE CASE
 ############
@@ -40,9 +40,9 @@ problem = to_problem(model, searchover="levers")
 
 ### Run definition
 
-nfe = 35000 #
-seeds = 5
-run_comment = 'BaseCase'
+nfe = 150000 #
+seeds = 1
+run_comment = 'BC_BaseCase'
 run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
 
 os.chdir(f'../runs/{run_label}')
@@ -65,10 +65,10 @@ def alternative_load_archives(filename):  # cls,
 
 
 ArchiveLogger.load_archives = alternative_load_archives
-# %% md
+
 # Merge convergences
-# %%
 convergences = []
+print(os.getcwd())
 for i in range(seeds):
     df = pd.read_csv(f"convergence{i}.csv")
     convergences.append(df)
@@ -140,7 +140,7 @@ for metrics, convergence in zip(metrics_by_seed, convergences):
 sns.despine(fig)
 
 plt.show()
-
+'''
 
 #################
 #### HYDROPOWER
@@ -183,9 +183,9 @@ problem = to_problem(model, searchover="levers")
 os.getcwd()
 
 # LOAD THE RUN
-nfe = 2  # 150000 1 seed; 35000 5 seeds in HPC
+nfe =  100000 # 150000 1 seed; 35000 5 seeds in HPC
 seeds = 1  # 5
-run_comment = 'hyd_NOBJhyd'  # add a comment to recognize the run output
+run_comment = 'HYD_nobj'  # add a comment to recognize the run output
 run_label = f"{run_comment}_{nfe}nfe_{seeds}seed"
 
 os.chdir(f'../runs/{run_label}')
@@ -216,6 +216,15 @@ for i in range(seeds):
     # archives.items()[nfe] =
     # archives = archives.loc[:, ~archives.columns.str.contains('^Unnamed')]
     all_archives.append(archives)
+#print(all_archives)
+
+# Create the results list
+results_list = []
+for i in range(seeds):
+    result = pd.read_csv(f"results_seed{i}.csv")
+    # archives.items()[nfe] =
+    # archives = archives.loc[:, ~archives.columns.str.contains('^Unnamed')]
+    results_list.append(result)
 
 # Define the reference list
 reference_set = epsilon_nondominated(results_list, [0.05] * len(model.outcomes), problem)  # [0.05]

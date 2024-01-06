@@ -297,7 +297,7 @@ class ModelZambezi:
         self.qDelta = utils.loadVector("../data/MEF_Delta.txt", self.T)  # [m^3/sec]
 
     def getNobj(self):  # the number of objectives is set in the settings_file (3 in 09.23)
-        return self.NobjIRR
+        return self.Nobj
 
     def getNvar(self):  # the number of variables is set in the settings_file (230 in 09.23)
         return self.Nvar
@@ -737,7 +737,6 @@ class ModelZambezi:
         return JJ
 
     # Deficit
-    # TODO: unused method
     def g_deficit(self, q, w):
 
         d = w - q
@@ -769,7 +768,7 @@ class ModelZambezi:
         return def_norm
 
     def readFileSettings(self):
-        """ Read the settings file from data folder """
+        """ Read the settings file """
 
         def nested_getattr(object, nested_attr_list):
 

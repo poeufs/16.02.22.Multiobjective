@@ -761,7 +761,7 @@ class ModelZambezi:
         return def_norm
 
     def readFileSettings(self):
-        """ Read the settings file from data folder """
+        """ Read the settings file """
 
         def nested_getattr(object, nested_attr_list):
 

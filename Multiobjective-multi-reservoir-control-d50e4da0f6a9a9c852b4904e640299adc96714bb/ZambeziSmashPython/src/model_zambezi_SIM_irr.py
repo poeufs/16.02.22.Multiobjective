@@ -1,5 +1,5 @@
 # ===========================================================================
-# Name        : model_zambezi_OPT.py
+# Name        : model_zambezi_SIM.py
 # Author      : YasinS, adapted from JazminZ & ?
 # Version     : 0.05
 # Copyright   : Your copyright notice
@@ -25,7 +25,7 @@ class ModelZambezi:
     mass-balance equation calculations iteratively.
     """
 
-    def __init__(self):
+    def __init__(self, policy_sim):
         """
         Creating the static objects of the model including the reservoirs,
         catchments and policy objects along with their parameters. Also,
@@ -33,25 +33,21 @@ class ModelZambezi:
         input data (flows etc.) as well as policy function hyper-parameters.
         """
 
-        #####################################################################
         # initialize parameter constructs for objects (policy and Catchment)
-        #####################################################################
+        # (has to be done before file reading)
 
-        # 1. Policy objects
-        # initialize parameter constructs from settings file for to be created policy objects
+        # initialize parameter constructs for to be created policy objects
         self.p_param = policy_parameters_construct()
         self.irr_param = irr_function_parameters()
 
-        # 2. Catchment objects
-        # initialize parameter constructs for to be created Catchment parameter objects (stored in a dictionary):
+        # initialize parameter constructs for to be created
+        # Catchment parameter objects (stored in a dictionary):
         catchment_list = ["Itt", "KafueFlats", "Ka", "Cb", "Cuando", "Shire", "Bg"]
         self.catchment_param_dict = dict()
 
         for catchment_name in catchment_list:
             catch_param_name = catchment_name + "_catch_param"
-            self.catchment_param_dict[catch_param_name] = CatchmentParam() # creates a dictionary for each catchment
-            # with two keys defined in CatchmentParam: CM and inflow_file
-
+            self.catchment_param_dict[catch_param_name] = CatchmentParam()
 
         # Reservoir parameter objects (stored seperately
         # to facilitate settings file reference):
@@ -64,7 +60,7 @@ class ModelZambezi:
         # read the parameter values from either CSV or UI
         self.readFileSettings()
 
-        # Make catchment objects (stored in a dictionary)
+        # Catchment objects (stored in a dictionary)
         self.catchment_dict = dict()
 
         for catchment_name in catchment_list:
@@ -78,8 +74,6 @@ class ModelZambezi:
         # CREATE RESERVOIRS
         ###################
         # each of the 5 existing reservoirs is created here
-
-
 
         # 1. KAFUE GORGE UPPER (KGU) reservoir
         self.KafueGorgeUpper = Reservoir("kafuegorgeupper")  # creating a new object from corresponding Reservoir class
@@ -240,26 +234,35 @@ class ModelZambezi:
         self.KafueGorgeLower.setMEF(self.KGL_param.minEnvFlow)
         self.KafueGorgeLower.setInitCond(self.KGL_param.initCond)
 
-        ############################
-        # POLICY OBJECTS GENERATION
-        ############################
-
-        # Below the policy objects (from the SMASH library) are generated this model requires two policy functions (to be
-        # used in separate places in the simulate function) which are the "release" and "irrigation" policies. While the
-        # former is meant to be a generic approximator such as RBF and ANN (to be optimized), the latter has a simple
-        # structure specified in the alternative_policy_structures script. Firstly, a Policy object is instantiated which
-        # is meant to own all policy functions within a model (see the documentation of SMASH). Then, two separate
-        # policies are added on to the overarching_policy."""
+        # Below the policy objects (from the SMASH library) are generated
+        # this model requires two policy functions (to be used in seperate
+        # places in the simulate function) which are the "release" and
+        # "irrigation" policies. While the former is meant to be a generic
+        # approximator such as RBF and ANN (to be optimized) the latter
+        # has a simple structure specified in the
+        # alternative_policy_structures script. Firstly, a Policy object is
+        # instantiated which is meant to own all policy functions within a
+        # model (see the documentation of SMASH). Then, two separate policies
+        # are added onto the overarching_policy.
 
         self.overarching_policy = Policy()
 
-        # Irrigation policy generation
-        self.overarching_policy.add_policy_function(name="irrigation", type="user_specified", n_inputs=4, n_outputs=1,
+        self.overarching_policy.add_policy_function(name="irrigation",
+                                                    type="user_specified", n_inputs=4, n_outputs=1,
                                                     class_name="IrrigationPolicy", n_irr_districts=8)
 
-        # Irrigation policy min max parameter values
         self.overarching_policy.functions["irrigation"].set_min_input(self.irr_param.mParam)
         self.overarching_policy.functions["irrigation"].set_max_input(self.irr_param.MParam)
+
+        self.overarching_policy.add_policy_function(name="release",
+                                                    type="ncRBF", n_inputs=self.p_param.policyInput,
+                                                    n_outputs=self.p_param.policyOutput,
+                                                    n_structures=self.p_param.policyStr)
+
+        self.overarching_policy.functions["release"].set_max_input(self.p_param.MIn)
+        self.overarching_policy.functions["release"].setMaxOutput(self.p_param.MOut)
+        self.overarching_policy.functions["release"].set_min_input(self.p_param.mIn)
+        self.overarching_policy.functions["release"].setMinOutput(self.p_param.mOut)
 
         # Load irrigation demand vectors (stored in a dictionary)
         irr_naming_list = range(2, 10, 1)
@@ -270,25 +273,15 @@ class ModelZambezi:
             file_name = "../data/IrrDemand" + str(id) + ".txt"
             self.irr_demand_dict[variable_name] = utils.loadVector(file_name, self.T)
 
-        # Setting the irrigation district index with references to the position of the first parameter (hdg) of each
-        # irrigation district in the decision variables vector.
-        self.irr_district_idx = utils.loadVector("../data/IrrDistrict_idx.txt", self.irr_param.num_irr)
+        self.irr_district_idx = utils.loadVector("../data/IrrDistrict_idx.txt",
+                                                 self.irr_param.num_irr)  # index referring to the position
+        # of the first parameter (hdg) of
+        # each irrigation district in the
+        # decision variables vector
 
-        # Release policy generation
-        self.overarching_policy.add_policy_function(name="release",
-                                                    type="ncRBF", n_inputs=self.p_param.policyInput,
-                                                    n_outputs=self.p_param.policyOutput,
-                                                    n_structures=self.p_param.policyStr)
-
-        # Release policy min max parameter values
-        self.overarching_policy.functions["release"].set_max_input(self.p_param.MIn)
-        self.overarching_policy.functions["release"].setMaxOutput(self.p_param.MOut)
-        self.overarching_policy.functions["release"].set_min_input(self.p_param.mIn)
-        self.overarching_policy.functions["release"].setMinOutput(self.p_param.mOut)
-
-        # Add the target hydropower production for each reservoir
-        self.tp_Kgu = utils.loadVector("../data/KGUprod.txt", self.T)  # Kafue Gorge Upper target production
+        # Target hydropower production for each reservoir
         self.tp_Itt = utils.loadVector("../data/ITTprod.txt", self.T)  # Itezhitezhi target production
+        self.tp_Kgu = utils.loadVector("../data/KGUprod.txt", self.T)  # Kafue Gorge Upper target production
         self.tp_Ka = utils.loadVector("../data/KAprod.txt", self.T)  # Kariba target production
         self.tp_Cb = utils.loadVector("../data/CBprod.txt", self.T)  # Cahora Bassa target production
         self.tp_Kgl = utils.loadVector("../data/KGLprod.txt", self.T)  # Kafue Gorge Lower target production
@@ -299,21 +292,19 @@ class ModelZambezi:
         # Load Minimum Environmental Flow requirement in the Zambezi Delta for the months of February and March
         self.qDelta = utils.loadVector("../data/MEF_Delta.txt", self.T)  # [m^3/sec]
 
-    def getNobj(self):  # the number of objectives is set in the settings_file (3 in 09.23)
-        return self.Nobj
+        ### First difference with model_zambezi_OPT
+        self.PolicySim = policy_sim  # To keep the name of the policy with which the simulatin is run
+        ### end of difference
 
-    def getNvar(self):  # the number of variables is set in the settings_file (230 in 09.23)
+    def getNobj(self):
+        return self.NobjIRR
+
+    def getNvar(self):
         return self.Nvar
 
-    #######################
-    # CALL FOR SIMULATION
-    #######################
-
     def evaluate(self, var):
-        """ Evaluate the KPI values based on the given input data and policy parameter configuration.
-        Evaluate function serves as the behaviour generating machine which outputs KPIs of the model.
-        Evaluate does so by means of calling the simulate function which handles the state transformation via
-        mass-balance equation calculations iteratively.
+        """ Evaluate the KPI values based on the given input
+        data and policy parameter configuration.
 
         Parameters
         ----------
@@ -328,14 +319,17 @@ class ModelZambezi:
         the mode (simulation or optimization)
         """
 
-        # Create the objectives as an empty array
         obj = np.empty(0)
 
-        #
+        ### Second difference
+        objectives = open("../objs/" + self.PolicySim + "_simulated.objs",
+                          'w+')  # opening the file to write the objective values
+        ###
+
         self.overarching_policy.assign_free_parameters(var)
 
         if (self.Nsim < 2):  # single simulation
-            J = self.simulate
+            J = self.simulate()
             obj = J
 
         else:  # MC Simulation to be adjusted
@@ -354,17 +348,15 @@ class ModelZambezi:
             obj = np.append(obj, np.percentile(Jenv, 99))
             obj = np.append(obj, np.percentile(Jirr_def, 99))
 
+        ### 3rd difference OPT
+        objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
+        objectives.close()
+        ###
+
         # re-initialize policy parameters for further runs in the optimization mode
         self.overarching_policy.functions["release"].clear_parameters()
         self.overarching_policy.functions["irrigation"].clear_parameters()
 
-        return list(obj)
-
-    ########
-    # SIMULATION
-    ########
-
-    @property
     def simulate(self):
         """ Mathematical simulation over the specified simulation
         duration within a main for loop based on the mass-balance
@@ -373,16 +365,29 @@ class ModelZambezi:
         Parameters
         ----------
         self : ModelZambezi object
-            
+
         Returns
         -------
         JJ : np.array
             Array of calculated KPI values
         """
 
-        #################
-        # INITIALIZATION of Reservoir storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
-        #################
+        ### Diff 4
+        # Opening the files (ofstream in c++)
+        rDelta = open("../storage_release/three_policy_simulation/rDelta_" + self.PolicySim + ".txt", 'w+')
+        irrigation = open("../storage_release/three_policy_simulation/irr_" + self.PolicySim + ".txt", 'w+')
+
+        # Initialize the mass_balance
+        mass_balance_ReservoirSim = dict()
+        qturb_ReservoirSim = dict()
+
+        for reservoir in ['cb', 'itt', 'ka', 'kgu', 'kgl']:
+            qturb_ReservoirSim[reservoir] = open(
+                "../storage_release/three_policy_simulation/qturb_" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
+            mass_balance_ReservoirSim[reservoir] = open(
+                "../storage_release/three_policy_simulation/" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
+        ### End diff
+        ## INITIALIZATION: storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
 
         # storage (s)
@@ -428,18 +433,19 @@ class ModelZambezi:
         r_irr8 = np.full(self.H + 1, -999)
         r_irr9 = np.full(self.H + 1, -999)
 
-        # SIMULATION VARIABLES (initialized as float of value 0 and empty np array)
+        # simulation variables Python -. (initialized as float of value 0 and empty np array)
         q_Itt, q_KafueFlats, q_KaLat, q_Bg, q_Cb, q_Cuando, q_Shire, \
             qTurb_Temp, qTurb_Temp_N, qTurb_Temp_S, headTemp, \
             hydTemp, hydTemp_dist, hydTemp_N, hydTemp_S, irrDef_Temp, irrDefNorm_Temp, \
-            envDef_Temp, qTotIN, qTotIN_1 = tuple(20 * [float()])  # catchment inflows, turbine inflows,
-        sd_rd = np.empty(0)  # (storage daily_release daily: storage and release resulting from daily integration
-        uu = np.empty(0) # decision array
+            envDef_Temp, qTotIN, qTotIN_1 = tuple(20 * [float()])  #
+        sd_rd = np.empty(0)  # storage and release resulting from daily integration
+        uu = np.empty(0)
         gg_hydKGU, gg_hydITT, gg_hydKA, gg_hydCB, gg_hydKGL, gg_hydVF, \
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
             gg_irr5_NormDef, gg_irr6_NormDef, gg_irr7_NormDef, gg_irr8_NormDef, \
-            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot = tuple(26 * [np.empty(0)])
+            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot, deficitIRR_2, deficitIRR_3, deficitIRR_4, \
+            deficitIRR_5, deficitIRR_6, deficitIRR_7, deficitIRR_8, deficitIRR_9 = tuple(34 * [np.empty(0)])
         input, outputDEF = tuple([np.empty(0), np.empty(0)])
 
         # initial condition
@@ -449,10 +455,8 @@ class ModelZambezi:
         s_cb[0] = self.CahoraBassa.getInitCond()
         s_kgl[0] = self.KafueGorgeLower.getInitCond()
 
-        # initial inflow
-        qTotIN_1 = self.inflowTOT00
+        qTotIN_1 = self.inflowTOT00  # initial inflow
 
-        # Average release from the ITT reservoir that reaches the KGU three months later per day
         r_itt_delay[0] = 0  # September 1985 [m^3/sec] #
         r_itt_delay[
             1] = 56.183290322580640  # October 1985 [m^3/sec] but divided for the number of days in January 1986 when it actually enters KGU #
@@ -461,138 +465,125 @@ class ModelZambezi:
         r_itt_delay[
             3] = 101.7307419354839  # December 1985 [m^3/sec] but divided for the number of days in March 1986 when it actually enters KGU #
 
-        ##################
-        # Run simulation
-        ##################
+        #################
+        # RUN SIMULATION
+        #################
 
         for t in range(self.H):
             # month of the year
             moy[t] = (self.initMonth + t - 1) % (self.T) + 1
 
-            # inflows read from
+            # inflows
             q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)  # Itezhitezhi inflow @ Kafue Hook Bridge #
+            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(
+                t)  # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper) #
+            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(
+                t)  # Kariba inflow @ Victoria Falls increased by +10% #
+            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(
+                t)  # Cahora Bassa inflow (Luangwa and other tributaries) #
+            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)  # Kariba inflow @ Cuando river #
+            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)  # Shire discharge (upstream of the Delta) #
+            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(
+                t)  # Kariba inflow @ Victoria Falls increased by +10% #
 
-            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(t)
-                # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
-            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(t)
-                # Kariba inflow @ Victoria Falls increased by +10%
-            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(t)
-                # Cahora Bassa inflow (Luangwa and other tributaries)
-            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)
-                # Kariba inflow @ Cuando river #
-            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)
-                # Shire discharge (upstream of the Delta) #
-            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(t)
-                # Kariba inflow @ Victoria Falls increased by +10% #
+            qTotIN = q_Itt + q_KafueFlats + q_KaLat + q_Cb + q_Cuando + q_Shire + q_Bg  # total inflows
 
-            # Calculate the total inflow
-            qTotIN = q_Itt + q_KafueFlats + q_KaLat + q_Cb + q_Cuando + q_Shire + q_Bg
-
-            # add the inputs (storage, month and qTotIN_1 for the function approximator (NN, RBF) black-box policy
+            # Add the INPUTS for the function approximator (RBF / ANN) black-box policy
             input = np.array([s_itt[t], s_kgu[t], s_ka[t], s_cb[t], s_kgl[t], moy[t], qTotIN_1])
 
-            # Policy function is called here!
+            # call the POLICY function!
             uu = self.overarching_policy.functions["release"].get_norm_output(input)
-            u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)  # decision per reservoir assigned
+            # decision per reservoir assigned
+            u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)
 
             # daily integration and assignment of monthly storage and release values
-            # 1. ITT
+            # ITT
             sd_rd = self.Itezhitezhi.integration(12 * self.integrationStep[moy[t] - 1], t, s_itt[t], u_itt[t], q_Itt,
                                                  moy[t])  # 2 # 24*integrationStep[moy[t]-1] ORIG
-            s_itt[t + 1] = sd_rd[0]
-            r_itt[t + 1] = sd_rd[1]
+            s_itt[t + 1] = sd_rd[0]  # storage
+            r_itt[t + 1] = sd_rd[1]  # release
             r_itt_delay[t + 3] = r_itt[t + 1] * (self.integrationStep[moy[t] - 1]) / (
-            self.integrationStep_delay[moy[t] - 1])
+                self.integrationStep_delay[moy[t] - 1])
 
-            # Irrigation district 4, dependent on KafueFlats
+            # compute the irrigation water diversion volume [m3/s] for irrigation district 4
             r_irr4[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [q_KafueFlats + r_itt_delay[t + 1], self.irr_demand_dict["irr_demand4"][moy[t] - 1], 4,
-                 self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s]
+                 self.irr_district_idx])
 
-            # 2. KGU
             sd_rd = self.KafueGorgeUpper.integration(12 * self.integrationStep[moy[t] - 1], t, s_kgu[t], u_kgu[t],
                                                      q_KafueFlats + r_itt_delay[t + 1] - r_irr4[t + 1],
                                                      moy[t])  # 2 24*integrationStep[moy[t]-1] ORIG
             s_kgu[t + 1] = sd_rd[0]
             r_kgu[t + 1] = sd_rd[1]
 
-            # 3. KGL
             sd_rd = self.KafueGorgeLower.integration(12 * self.integrationStep[moy[t] - 1], t, s_kgl[t], u_kgl[t],
                                                      r_kgu[t + 1], moy[t])  # 2 24*integrationStep[moy[t]-1]
             s_kgl[t + 1] = sd_rd[0]
             r_kgl[t + 1] = sd_rd[1]
 
-            # Irrigation district 2. Dependent on Cuando and KaLat
             r_irr2[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [q_Bg + q_Cuando + q_KaLat, self.irr_demand_dict["irr_demand2"][moy[t] - 1], 2,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
 
-            # 4. Kariba
             sd_rd = self.Kariba.integration_daily(self.integrationStep[moy[t] - 1], t, s_ka[t], u_ka[t],
                                                   q_Bg + q_Cuando + q_KaLat - r_irr2[t + 1], moy[t])  # 2
             s_ka[t + 1] = sd_rd[0]
             r_ka[t + 1] = sd_rd[1]
 
-            # Irrigation district 3
             r_irr3[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_ka[t + 1], self.irr_demand_dict["irr_demand3"][moy[t] - 1], 3,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
-            # Irrigation district 5
             r_irr5[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_kgl[t + 1], self.irr_demand_dict["irr_demand5"][moy[t] - 1], 5,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
-            # Irrigation district 6
             r_irr6[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_ka[t + 1] - r_irr3[t + 1] + r_kgl[t + 1] - r_irr5[t + 1],
                  self.irr_demand_dict["irr_demand6"][moy[t] - 1], 6,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
 
-            # 5. CahoraBassa
             sd_rd = self.CahoraBassa.integration(12 * self.integrationStep[moy[t] - 1], t, s_cb[t], u_cb[t],
                                                  q_Cb + r_kgl[t + 1] + r_ka[t + 1] - (
-                                                             r_irr3[t + 1] + r_irr5[t + 1] + r_irr6[t + 1]), moy[t])
+                                                         r_irr3[t + 1] + r_irr5[t + 1] + r_irr6[t + 1]), moy[t])
             s_cb[t + 1] = sd_rd[0]  #
             r_cb[t + 1] = sd_rd[1]  #
             del sd_rd  #
 
-            # Irrigation district 7
             r_irr7[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1], self.irr_demand_dict["irr_demand7"][moy[t] - 1], 7,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
-            # Irrigation district 8
             r_irr8[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1] - r_irr7[t + 1], self.irr_demand_dict["irr_demand8"][moy[t] - 1], 8,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
-            # Irrigation district 9
             r_irr9[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1] - r_irr7[t + 1] + q_Shire - r_irr8[t + 1], self.irr_demand_dict["irr_demand9"][moy[t] - 1],
                  9, self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
 
-            # Total inflow
             qTotIN_1 = qTotIN
 
-            ############################
             # TIME-SEPARABLE OBJECTIVES
-            ############################
 
             # HYDROPOWER PRODUCTION (MWh/day)
-            # 1. ITT
+            # Itezhitezhi
             h_itt[t] = self.Itezhitezhi.storage_to_level(s_itt[t])
             qTurb_Temp = min(r_itt[t + 1], 2 * 306)
 
+            qturb_ReservoirSim['itt'].write(str(qTurb_Temp) + "\n")
+
             headTemp = (40.50 - (1030.5 - h_itt[t]))
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.89 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year]
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year]
             hydTemp_dist = abs(hydTemp - self.tp_Itt[moy[t] - 1])
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
-            # 2. Kafue Gorge Upper
+            # Kafue Gorge Upper
             h_kgu[t] = self.KafueGorgeUpper.storage_to_level(s_kgu[t])
             qTurb_Temp = min(r_kgu[t + 1], 6 * 42)
 
+            qturb_ReservoirSim['kgu'].write(str(qTurb_Temp) + "\n")
+
             headTemp = (397 - (977.6 - h_kgu[t]))
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.61 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             hydTemp_dist = abs(hydTemp - self.tp_Kgu[moy[t] - 1])
             gg_hydKGU = np.append(gg_hydKGU, hydTemp_dist)  #
 
@@ -602,14 +593,18 @@ class ModelZambezi:
                                6 * 200)  # Kariba North has an efficiency of 48% -. 49% of the total release goes through Kariba North #
             headTemp = (108 - (489.5 - h_ka[t]))  #
             hydTemp_N = ((qTurb_Temp_N * headTemp * 1000 * 9.81 * 0.48 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
 
             # Kariba South
             qTurb_Temp_S = min(r_ka[t + 1] * 0.512, 6 * 140)  #
 
+            ### Diff 5
+            qturb_ReservoirSim['ka'].write(str(qTurb_Temp_N + qTurb_Temp_S) + "\n")
+            ###
+
             headTemp = (110 - (489.5 - h_ka[t]))  #
             hydTemp_S = ((qTurb_Temp_S * headTemp * 1000 * 9.81 * 0.51 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
 
             hydTemp = hydTemp_N + hydTemp_S  #
             hydTemp_dist = abs(hydTemp - self.tp_Ka[moy[t] - 1])
@@ -619,9 +614,11 @@ class ModelZambezi:
             h_cb[t] = self.CahoraBassa.storage_to_level(s_cb[t])  #
             qTurb_Temp = min(r_cb[t + 1], 5 * 452)  #
 
+            qturb_ReservoirSim['cb'].write(str(qTurb_Temp) + "\n")
+
             headTemp = (128 - (331 - h_cb[t]))  #
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.73 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             hydTemp_dist = abs(hydTemp - self.tp_Cb[moy[t] - 1])
             gg_hydCB = np.append(gg_hydCB, hydTemp_dist)  #
 
@@ -629,9 +626,11 @@ class ModelZambezi:
             h_kgl[t] = self.KafueGorgeLower.storage_to_level(s_kgl[t])  #
             qTurb_Temp = min(r_kgl[t + 1], 97.4 * 5)  #
 
+            qturb_ReservoirSim['kgl'].write(str(qTurb_Temp) + "\n")
+
             headTemp = (182.7 - (586 - h_kgl[t]))  #
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.88 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             hydTemp_dist = abs(hydTemp - self.tp_Kgl[moy[t] - 1])
             gg_hydKGL = np.append(gg_hydKGL, hydTemp_dist)  #
 
@@ -640,87 +639,129 @@ class ModelZambezi:
                              (5 * 1.2 + 6 * 12 + 6 * 12))  #
             headTemp = 100  #
             hydTemp = ((qTurb_Temp * headTemp * 1000 * 9.81 * 0.88 * (
-                        24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
+                    24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
             gg_hydVF = np.append(gg_hydVF, hydTemp)  #
 
-            # Total hydropower deficit
+            ### Dif 6
+            mass_balance_ReservoirSim['itt'].write(
+                str(q_Itt) + " " + str(h_itt[t]) + " " + str(s_itt[t]) + " " + str(s_itt[t + 1]) + " " + str(
+                    r_itt[t + 1]) + " " + str(r_itt_delay[t + 1]) + "\n")
+            mass_balance_ReservoirSim['kgu'].write(
+                str(q_KafueFlats + r_itt_delay[t + 1] - r_irr4[t + 1]) + " " + str(h_kgu[t]) + " " + str(
+                    s_kgu[t]) + " " + str(s_kgu[t + 1]) + " " + str(r_kgu[t + 1]) + '\n')  #
+            mass_balance_ReservoirSim['kgl'].write(
+                str(r_kgu[t + 1]) + " " + str(h_kgl[t]) + " " + str(s_kgl[t]) + " " + str(s_kgl[t + 1]) + " " + str(
+                    r_kgl[t + 1]) + '\n')  #
+            mass_balance_ReservoirSim['ka'].write(
+                str(q_Bg + q_Cuando + q_KaLat - r_irr2[t + 1]) + " " + str(h_ka[t]) + " " + str(s_ka[t]) + " " + str(
+                    s_ka[t + 1]) + " " + str(r_ka[t + 1]) + '\n')  #
+            mass_balance_ReservoirSim['cb'].write(
+                str(q_Cb + r_kgl[t + 1] + r_ka[t + 1] - (r_irr3[t + 1] + r_irr5[t + 1] + r_irr6[t + 1])) + " " + str(
+                    h_cb[t]) + " " + str(s_cb[t]) + " " + str(s_cb[t + 1]) + " " + str(r_cb[t + 1]) + '\n')  #
+
+            rDelta.write(str(r_cb[t + 1] - r_irr7[t + 1] - r_irr8[t + 1] + q_Shire - r_irr9[t + 1]) + '\n')
+            irrigation.write(str(r_irr2[t + 1]) + " " + str(r_irr3[t + 1]) + " " + str(r_irr4[t + 1]) + " " + str(
+                r_irr5[t + 1]) + " " + str(r_irr6[t + 1]) + " " + str(r_irr7[t + 1]) + " " + str(
+                r_irr8[t + 1]) + " " + str(r_irr9[t + 1]) + '\n')
+            ### end dif
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
 
-            # Irrigation deficit calculation
-            # Irr district 2
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand2"][moy[t] - 1] - r_irr2[t + 1], 0), 2)
             gg_irr2 = np.append(gg_irr2, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand2"][moy[t] - 1])
             gg_irr2_NormDef = np.append(gg_irr2_NormDef, irrDefNorm_Temp)
-            # Irr district 3
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand3"][moy[t] - 1] - r_irr3[t + 1], 0), 2)
             gg_irr3 = np.append(gg_irr3, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand3"][moy[t] - 1])
             gg_irr3_NormDef = np.append(gg_irr3_NormDef, irrDefNorm_Temp)
-            # Irr district 4
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand4"][moy[t] - 1] - r_irr4[t + 1], 0), 2)
             gg_irr4 = np.append(gg_irr4, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand4"][moy[t] - 1])
             gg_irr4_NormDef = np.append(gg_irr4_NormDef, irrDefNorm_Temp)
-            # Irr district 5
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand5"][moy[t] - 1] - r_irr5[t + 1], 0), 2)
             gg_irr5 = np.append(gg_irr5, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand5"][moy[t] - 1])
             gg_irr5_NormDef = np.append(gg_irr5_NormDef, irrDefNorm_Temp)
-            # Irr district 6
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand6"][moy[t] - 1] - r_irr6[t + 1], 0), 2)
             gg_irr6 = np.append(gg_irr6, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand6"][moy[t] - 1])
             gg_irr6_NormDef = np.append(gg_irr6_NormDef, irrDefNorm_Temp)
-            # Irr district 7
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand7"][moy[t] - 1] - r_irr7[t + 1], 0), 2)
             gg_irr7 = np.append(gg_irr7, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand7"][moy[t] - 1])
             gg_irr7_NormDef = np.append(gg_irr7_NormDef, irrDefNorm_Temp)
-            # Irr district 8
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand8"][moy[t] - 1] - r_irr8[t + 1], 0), 2)
             gg_irr8 = np.append(gg_irr8, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand8"][moy[t] - 1])
             gg_irr8_NormDef = np.append(gg_irr8_NormDef, irrDefNorm_Temp)
-            # Irr district 9
+
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand9"][moy[t] - 1] - r_irr9[t + 1], 0), 2)
             gg_irr9 = np.append(gg_irr9, irrDef_Temp)  # SQUARED irrigation deficit
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand9"][moy[t] - 1])
             gg_irr9_NormDef = np.append(gg_irr9_NormDef, irrDefNorm_Temp)
 
-            # Total irrigation deficit
             deficitIRR_tot = np.append(deficitIRR_tot,
                                        gg_irr2_NormDef[t] + gg_irr3_NormDef[t] + gg_irr4_NormDef[t] + gg_irr5_NormDef[
                                            t] + gg_irr6_NormDef[t] + gg_irr7_NormDef[t] + gg_irr8_NormDef[t] +
                                        gg_irr9_NormDef[t])  # SQUARED irrigation deficit
+            deficitIRR_2 = np.append(deficitIRR_2, gg_irr2_NormDef[t])
+            deficitIRR_3 = np.append(deficitIRR_3, gg_irr3_NormDef[t])
+            deficitIRR_4 = np.append(deficitIRR_4, gg_irr4_NormDef[t])
+            deficitIRR_5 = np.append(deficitIRR_5, gg_irr5_NormDef[t])
+            deficitIRR_6 = np.append(deficitIRR_6, gg_irr6_NormDef[t])
+            deficitIRR_7 = np.append(deficitIRR_7, gg_irr7_NormDef[t])
+            deficitIRR_8 = np.append(deficitIRR_8, gg_irr8_NormDef[t])
+            deficitIRR_9 = np.append(deficitIRR_9, gg_irr9_NormDef[t])
 
-            # DELTA ENVIRONMENT DEFICIT 
+            # DELTA ENVIRONMENT DEFICIT
             envDef_Temp = pow(
                 max(self.qDelta[moy[t] - 1] - (r_cb[t + 1] - r_irr7[t + 1] - r_irr8[t + 1] + q_Shire - r_irr9[t + 1]),
                     0), 2)
             gg_env = np.append(gg_env, envDef_Temp)
 
-            deficitENV_tot = np.append(deficitENV_tot, gg_env[t])  # total Delta environmental deficit
+            deficitENV_tot = np.append(deficitENV_tot, gg_env[t])  # Delta environment deficit
 
             # clear
             input = np.empty(0)
             uu = np.empty(0)
 
-        # TODO: check if correct
+        ### Dif 7
+        for reservoir in ['cb', 'itt', 'ka', 'kgu', 'kgl']:
+            qturb_ReservoirSim[reservoir].close()
+            mass_balance_ReservoirSim[reservoir].close()
+
+        irrigation.close()
+        rDelta.close()
+        ###
+
         # NOT Super clear if below implementation is correct. Check!!!!
-        # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) // 
+        # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) //
 
         JJ = np.empty(0)
         JJ = np.append(JJ, np.mean(deficitHYD_tot))
         JJ = np.append(JJ, np.mean(deficitENV_tot))
         JJ = np.append(JJ, np.mean(deficitIRR_tot))
+        JJ = np.append(JJ, np.mean(deficitIRR_2))
+        JJ = np.append(JJ, np.mean(deficitIRR_3))
+        JJ = np.append(JJ, np.mean(deficitIRR_4))
+        JJ = np.append(JJ, np.mean(deficitIRR_5))
+        JJ = np.append(JJ, np.mean(deficitIRR_6))
+        JJ = np.append(JJ, np.mean(deficitIRR_7))
+        JJ = np.append(JJ, np.mean(deficitIRR_8))
+        JJ = np.append(JJ, np.mean(deficitIRR_9))
 
         return JJ
 
     # Deficit
-    # TODO: unused method
     def g_deficit(self, q, w):
 
         d = w - q
@@ -731,13 +772,14 @@ class ModelZambezi:
 
     # Normalized SQUARED deficit
     def g_deficit_norm(self, defp, w):
-        """Takes two floats and divides the first by the square of the second.
+        """Takes two floats and divides the first by
+        the square of the second.
 
         Parameters
         ----------
         defp : float
         w : float
-            
+
         Returns
         -------
         def_norm : float
@@ -752,7 +794,7 @@ class ModelZambezi:
         return def_norm
 
     def readFileSettings(self):
-        """ Read the settings file """
+
         def nested_getattr(object, nested_attr_list):
 
             obj_copy = object
@@ -788,15 +830,14 @@ class ModelZambezi:
             elif row.Type == "str":
                 setattr(object, name, str(row["Value"]))
 
-        # Load number_days_month for integration
-        self.integrationStep = utils.loadIntVector("../data/number_days_month.txt", self.T) #number of days in month x
-        self.integrationStep_delay = utils.loadIntVector("../data/number_days_month_delay.txt", self.T) # n of days
-            # month x + 3
+        self.integrationStep = utils.loadIntVector("../data/number_days_month.txt", self.T)
+        self.integrationStep_delay = utils.loadIntVector("../data/number_days_month_delay.txt", self.T)
 
         # self.moy_file = utils.loadIntVector("../data/moy_1986_2005.txt", self.H)
 
-        self.catchment_param_dict["Itt_catch_param"].CM = 1 # What is the use of CM =1?
-        self.catchment_param_dict["Itt_catch_param"].inflow_file.file_name = "../data/qInfItt_1January1986_31Dec2005.txt"
+        self.catchment_param_dict["Itt_catch_param"].CM = 1
+        self.catchment_param_dict[
+            "Itt_catch_param"].inflow_file.file_name = "../data/qInfItt_1January1986_31Dec2005.txt"
         self.catchment_param_dict["Itt_catch_param"].inflow_file.row = self.H
 
         self.catchment_param_dict["KafueFlats_catch_param"].CM = 1
@@ -828,12 +869,9 @@ class ModelZambezi:
         self.catchment_param_dict["Bg_catch_param"].inflow_file.row = self.H
 
 
-####################################
-# POLICY PARAMETERS CONSTRUCT CLASS
-#####################################
-
+# struct
 class policy_parameters_construct:
-    """ Load from settings file to initialize policy parameter constructs"""
+
     def __init__(self):
         self.tPolicy = int()
         self.policyInput = int()
@@ -845,7 +883,6 @@ class policy_parameters_construct:
 
 
 class irr_function_parameters:
-    """ Load from settings file to initialize irrigation function parameter constructs"""
     def __init__(self):
         self.num_irr = int()
         self.mParam = np.empty(0)

@@ -466,24 +466,16 @@ class ModelZambezi:
         ##################
 
         for t in range(self.H):
-            # month of the year
-            moy[t] = (self.initMonth + t - 1) % (self.T) + 1
+            moy[t] = (self.initMonth + t - 1) % (self.T) + 1 # month of the year
 
-            # inflows read from
-            q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t)
-            # Itezhitezhi inflow @ Kafue Hook Bridge
-            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(t)
-            # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
-            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(t)
-            # Kariba inflow @ Victoria Falls increased by +10%
-            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(t)
-            # Cahora Bassa inflow (Luangwa and other tributaries)
-            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t)
-            # Kariba inflow @ Cuando river #
-            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t)
-            # Shire discharge (upstream of the Delta) #
-            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(t)
-            # Kariba inflow @ Victoria Falls increased by +10% #
+            # inflows read from data
+            q_Itt = self.catchment_dict["IttCatchment"].get_inflow(t) # Itezhitezhi inflow @ Kafue Hook Bridge
+            q_KafueFlats = self.catchment_dict["KafueFlatsCatchment"].get_inflow(t) # lateral flow @ Kafue Flats (upstream of Kafue Gorge Upper)
+            q_KaLat = self.catchment_dict["KaCatchment"].get_inflow(t) # Kariba inflow @ Victoria Falls increased by +10%
+            q_Cb = self.catchment_dict["CbCatchment"].get_inflow(t) # Cahora Bassa inflow (Luangwa and other tributaries)
+            q_Cuando = self.catchment_dict["CuandoCatchment"].get_inflow(t) # Kariba inflow @ Cuando river #
+            q_Shire = self.catchment_dict["ShireCatchment"].get_inflow(t) # Shire discharge (upstream of the Delta) #
+            q_Bg = self.catchment_dict["BgCatchment"].get_inflow(t) # Kariba inflow @ Victoria Falls increased by +10% #
 
             # Calculate the total inflow
             qTotIN = q_Itt + q_KafueFlats + q_KaLat + q_Cb + q_Cuando + q_Shire + q_Bg
@@ -537,10 +529,12 @@ class ModelZambezi:
             r_irr3[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_ka[t + 1], self.irr_demand_dict["irr_demand3"][moy[t] - 1], 3,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+
             # Irrigation district 5
             r_irr5[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_kgl[t + 1], self.irr_demand_dict["irr_demand5"][moy[t] - 1], 5,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+
             # Irrigation district 6
             r_irr6[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_ka[t + 1] - r_irr3[t + 1] + r_kgl[t + 1] - r_irr5[t + 1],
@@ -559,10 +553,12 @@ class ModelZambezi:
             r_irr7[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1], self.irr_demand_dict["irr_demand7"][moy[t] - 1], 7,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+
             # Irrigation district 8
             r_irr8[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1] - r_irr7[t + 1], self.irr_demand_dict["irr_demand8"][moy[t] - 1], 8,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #
+
             # Irrigation district 9
             r_irr9[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [r_cb[t + 1] - r_irr7[t + 1] + q_Shire - r_irr8[t + 1], self.irr_demand_dict["irr_demand9"][moy[t] - 1],
@@ -778,7 +774,7 @@ class ModelZambezi:
         return def_norm
 
     def readFileSettings(self):
-        """ Read the settings file from data folder """
+        """ Read the settings file"""
 
         def nested_getattr(object, nested_attr_list):
 
