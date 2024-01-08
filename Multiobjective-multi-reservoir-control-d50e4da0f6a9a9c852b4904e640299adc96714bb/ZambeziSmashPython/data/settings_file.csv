@@ -3,7 +3,7 @@ Nsim,1,int
 NN,1,int
 T,12,int
 H,240,int
-Nobj,11,int
+Nobj,8,int
 Nvar,230,int
 warmup,0,int
 initMonth,1,int
