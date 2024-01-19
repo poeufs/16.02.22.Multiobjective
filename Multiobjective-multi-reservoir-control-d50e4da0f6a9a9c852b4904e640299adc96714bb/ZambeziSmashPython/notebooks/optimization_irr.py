@@ -66,8 +66,8 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 10000 #150000 #35000
-    seeds = 1 #5
+    nfe = 1000 #150000 #35000
+    seeds = 3 #5
     epsilon_list = [0.2, 0.5, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
     run_comment = 'nobj3'  # add a comment to recognize the run output
