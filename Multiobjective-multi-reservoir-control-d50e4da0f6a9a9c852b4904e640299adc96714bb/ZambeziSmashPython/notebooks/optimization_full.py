@@ -30,7 +30,7 @@ sys.path.append(".")
 cwd_initial = os.getcwd()
 print("cwd line 26 is: ", cwd_initial)
 
-from model_zambezi_OPT_irr import ModelZambezi
+from model_zambezi_OPT_full import ModelZambezi
 
 ZambeziProblem = ModelZambezi()
 
