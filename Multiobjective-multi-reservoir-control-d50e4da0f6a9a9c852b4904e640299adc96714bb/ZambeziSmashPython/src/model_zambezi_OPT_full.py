@@ -437,7 +437,7 @@ class ModelZambezi:
             gg_irr5_NormDef, gg_irr6_NormDef, gg_irr7_NormDef, gg_irr8_NormDef, \
             gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot, deficitIRR_2, deficitIRR_3, deficitIRR_4, \
             deficitIRR_5, deficitIRR_6, deficitIRR_7, deficitIRR_8, deficitIRR_9, deficitHYD_itt, deficitHYD_kgu, \
-            deficitHYD_ka, deficitHYD_cb, deficitHYD_kgl = tuple(34 * [np.empty(0)])  # 26
+            deficitHYD_ka, deficitHYD_cb, deficitHYD_kgl = tuple(39 * [np.empty(0)])  # 26
         input, outputDEF = tuple([np.empty(0), np.empty(0)])
 
         # initial condition
