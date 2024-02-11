@@ -77,10 +77,10 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 10  # 150000 #35000
+    nfe = 100000  # 150000 #35000
     seeds = 1  # 5
     epsilon_list = [0.4, 0.6, 0.5, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
-                    0.6, 0.2, 0.2, 0.2, 0.2, 0.2]  # Test values: [0.9] * len(model.outcomes), after observing base case:
+                    0.6, 0.5, 0.5, 0.5, 0.5, 0.5]  # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
     run_comment = 'test1'  # add a comment to recognize the run output
     ######################################################################################
@@ -193,7 +193,7 @@ if __name__ == '__main__':
 
     # Merge the 5 runs of the optimization
     problem = to_problem(model, searchover="levers")
-    epsilons = [0.1] * len(model.outcomes)
+    epsilons = [0.4] * len(model.outcomes)
     merged_results = epsilon_nondominated(results_list, epsilons, problem)
 
     print('merged_results', merged_results, 'saved to: ', os.getcwd())
