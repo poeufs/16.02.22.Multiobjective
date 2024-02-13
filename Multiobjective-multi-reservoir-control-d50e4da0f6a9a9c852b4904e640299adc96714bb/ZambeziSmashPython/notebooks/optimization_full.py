@@ -79,13 +79,13 @@ if __name__ == '__main__':
     # Specify the nfe and add a comment for the run save name
     nfe = 100000  # 150000 #35000
     seeds = 1  # 5
-    epsilon_list = [0.4, 0.6, 0.5, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6,
-                    0.6, 0.5, 0.5, 0.5, 0.5, 0.5]  # Test values: [0.9] * len(model.outcomes), after observing base case:
+    epsilon_list = [0.5, 0.7, 0.6, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8,
+                    0.8, 0.7, 0.7, 0.7, 0.7, 0.7]  # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'test1'  # add a comment to recognize the run output
+    run_comment = 'test2'  # add a comment to recognize the run output
     ######################################################################################
 
-    run_label = f"FULL_{run_comment}_{nfe}nfe_{seeds}seed"  # IR = Irrigation (11objectives)
+    run_label = f"FULL_{run_comment}_{nfe}nfe_{seeds}seed"  #FULL (16objectives)
     dir_runs = f"{cwd_initial}/../runs"
 
     # Check if the directory already exists and create it if it doesn't
@@ -177,6 +177,7 @@ if __name__ == '__main__':
             convergences.append(convergence)
 
     after = datetime.now()
+    print(f"Time after is {after}")
     print(f"It took {after - before} time to do {nfe} nfes")
 
     print("results_list", results_list)
@@ -193,7 +194,7 @@ if __name__ == '__main__':
 
     # Merge the 5 runs of the optimization
     problem = to_problem(model, searchover="levers")
-    epsilons = [0.4] * len(model.outcomes)
+    epsilons = [0.6] * len(model.outcomes)
     merged_results = epsilon_nondominated(results_list, epsilons, problem)
 
     print('merged_results', merged_results, 'saved to: ', os.getcwd())
