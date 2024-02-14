@@ -82,7 +82,7 @@ if __name__ == '__main__':
     epsilon_list = [0.5, 0.7, 0.6, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8,
                     0.8, 0.7, 0.7, 0.7, 0.7, 0.7]  # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'test2'  # add a comment to recognize the run output
+    run_comment = 'e57687'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"FULL_{run_comment}_{nfe}nfe_{seeds}seed"  #FULL (16objectives)
