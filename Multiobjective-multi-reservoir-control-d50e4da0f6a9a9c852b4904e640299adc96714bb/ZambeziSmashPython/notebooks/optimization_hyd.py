@@ -61,8 +61,8 @@ if __name__ == '__main__':
     ######################################################################################
 
     # Specify the nfe and add a comment for the run save name
-    nfe = 100000 #150000 1 seed; 35000 5 seeds in HPC
-    seeds = 1 #5
+    nfe = 200000 #150000 1 seed; 35000 5 seeds in HPC
+    seeds = 5 #5
     epsilon_list = [0.3, 0.6, 0.4, 0.5, 0.5, 0.5, 0.5, 0.5] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # [0.2, 0.5, 0.3], previous version's epsilons: [0.1] * len(model.outcomes)
     run_comment = 'e3645'  # add a comment to recognize the run output
@@ -160,6 +160,7 @@ if __name__ == '__main__':
             convergences.append(convergence)
 
     after = datetime.now()
+    print(f"Time after is {after}")
     print(f"It took {after - before} time to do {nfe} nfes")
 
     print("results_list", results_list)

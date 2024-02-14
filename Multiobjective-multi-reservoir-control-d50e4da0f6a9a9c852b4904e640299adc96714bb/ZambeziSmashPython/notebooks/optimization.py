@@ -156,6 +156,7 @@ if __name__ == '__main__':
             convergences.append(convergence)
 
     after = datetime.now()
+    print(f"Time after is {after}")
     print(f"It took {after - before} time to do {nfe} nfes")
 
     print("results_list", results_list)
@@ -180,4 +181,3 @@ if __name__ == '__main__':
     # Save the results
     merged_results_name = 'merged_results.csv'
     merged_results.to_csv(os.path.join(cwd, merged_results_name), index=False)
-
