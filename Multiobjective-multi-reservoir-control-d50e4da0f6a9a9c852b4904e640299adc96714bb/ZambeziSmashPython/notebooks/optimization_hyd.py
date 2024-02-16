@@ -65,7 +65,7 @@ if __name__ == '__main__':
     seeds = 5 #5
     epsilon_list = [0.4, 0.6, 0.4, 0.7, 0.7, 0.7, 0.7, 0.7] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # [0.2, 0.5, 0.3], previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'e4647'  # add a comment to recognize the run output
+    run_comment = '1'  # add a comment to recognize the run output
 
     ######################################################################################
 
