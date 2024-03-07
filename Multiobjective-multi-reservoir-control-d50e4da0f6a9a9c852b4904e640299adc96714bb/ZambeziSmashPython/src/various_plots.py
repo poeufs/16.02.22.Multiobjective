@@ -25,7 +25,7 @@ def parallel_plots(objectives_df):
     objectives_df = (objectives_df.max() - objectives_df) / (objectives_df.max() - objectives_df.min())
     objectives_df['Name'] = "All Solutions"
     for column in names:
-        objectives_df = objectives_df.append(objectives_df.loc[objectives_df[column] == 1, :], ignore_index=True)
+        objectives_df = objectives_df.concat(objectives_df.loc[objectives_df[column] == 1, :], ignore_index=True)
         objectives_df.iloc[-1, -1] = "Best " + column
 
     fig = plt.figure()
