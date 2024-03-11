@@ -351,7 +351,7 @@ class ModelZambezi:
         ### 3rd difference OPT
         #***********#
         obj_string = ''
-        for i in len(obj):
+        for i in len(range(obj)):
             obj_string += str(obj[i]) + ' '
         print('obj_string is:', obj_string)
 
