@@ -4,17 +4,17 @@ import seaborn as sns
 import numpy as np
 from matplotlib.lines import Line2D
 import os
-
-# import pandas as pd
+import pandas as pd
 
 sns.set_style()
 
-
 def parallel_plots(objectives_df):
-    file_name = 'Best_objectives'
 
-    names = ['Hydropower', 'Environment', 'Irrigation']
-    units = ['TWh/year', 'Deficit (cm/sec)' + r'$^2$', 'Normalized Deficit']
+    if len(objectives_df.columns) == 3:
+        file_name = 'Best_objectives_BC'
+
+        names = ['Hydropower', 'Environment', 'Irrigation']
+        units = ['TWh/year', 'Deficit (cm/sec)' + r'$^2$', 'Normalized Deficit']
 
     mx = []
     mn = []
@@ -22,15 +22,21 @@ def parallel_plots(objectives_df):
         mx.append(str(round(objectives_df[column].max(), 1)))
         mn.append(str(round(objectives_df[column].min(), 1)))
 
-    objectives_df = (objectives_df.max() - objectives_df) / (objectives_df.max() - objectives_df.min())
-    objectives_df['Name'] = "All Solutions"
+    objectives_df_norm = (objectives_df.max() - objectives_df) / (objectives_df.max() - objectives_df.min())
+    objectives_df_norm['Name'] = "All Solutions"
+
+    # list of dfs
+    dfs_to_concat = [objectives_df_norm]
+
     for column in names:
-        objectives_df = objectives_df.concat(objectives_df.loc[objectives_df[column] == 1, :], ignore_index=True)
-        objectives_df.iloc[-1, -1] = "Best " + column
+        filtered_df = objectives_df_norm.loc[objectives_df_norm[column] == 1, :].copy()
+        filtered_df['Name'] = "Best " + column
 
-    fig = plt.figure()
+        dfs_to_concat.append(filtered_df)
 
-    ax1 = fig.add_subplot(111)
+    result_df = pd.concat(dfs_to_concat, ignore_index=True)
+
+    fig, ax1 = plt.subplots()
 
     gray = '#bdbdbd'
     purple = '#7a0177'
@@ -39,7 +45,7 @@ def parallel_plots(objectives_df):
     yellow = '#fdaa09'
     pink = '#c51b7d'
 
-    parallel_coordinates(objectives_df, 'Name', color=[gray, purple, yellow, blue], linewidth=7, alpha=.8)
+    parallel_coordinates(result_df, 'Name', color=[gray, purple, yellow, blue], linewidth=7, alpha=.8)
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
                ncol=4, mode="expand", borderaxespad=1.5, fontsize=18)
 
@@ -47,7 +53,8 @@ def parallel_plots(objectives_df):
     ax1.set_xticks(np.arange(3))
 
     ax1.set_xticklabels(
-        [mx[i] + '\n' + '\n' + names[i] + '\n' + units[i], mx[i + 1] + '\n' + '\n' + names[i + 1] + '\n' + units[i + 1],
+        [mx[i] + '\n' + '\n' + names[i] + '\n' + units[i],
+         mx[i + 1] + '\n' + '\n' + names[i + 1] + '\n' + units[i + 1],
          mx[i + 2] + '\n' + '\n' + names[i + 2] + '\n' + units[i + 2]], fontsize=18)
     ax2 = ax1.twiny()
     ax2.set_xticks(np.arange(3))
@@ -61,6 +68,8 @@ def parallel_plots(objectives_df):
              transform=plt.gca().transAxes)
 
     fig.set_size_inches(17.5, 9)
+    plt.show()
+
 
 
 def plot_quantities():

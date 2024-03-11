@@ -585,7 +585,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Itt[moy[t] - 1])
             gg_hydITT = np.append(gg_hydITT, hydTemp_dist)
 
-            # 2. Kafue Gorge Upper
+            # 2. Kafue Gorge Upper KGU
             h_kgu[t] = self.KafueGorgeUpper.storage_to_level(s_kgu[t])
             qTurb_Temp = min(r_kgu[t + 1], 6 * 42)
 
@@ -595,7 +595,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Kgu[moy[t] - 1])
             gg_hydKGU = np.append(gg_hydKGU, hydTemp_dist)  #
 
-            # Kariba North
+            # 3a. Kariba North KA
             h_ka[t] = self.Kariba.storage_to_level(s_ka[t])  #
             qTurb_Temp_N = min(r_ka[t + 1] * 0.488,
                                6 * 200)  # Kariba North has an efficiency of 48% -. 49% of the total release goes through Kariba North #
@@ -603,7 +603,7 @@ class ModelZambezi:
             hydTemp_N = ((qTurb_Temp_N * headTemp * 1000 * 9.81 * 0.48 * (
                     24 * self.integrationStep[moy[t] - 1])) / 1000000) * 12 / 1000000  # [TWh/year] #
 
-            # Kariba South
+            # 3b. Kariba South (KA)
             qTurb_Temp_S = min(r_ka[t + 1] * 0.512, 6 * 140)  #
 
             headTemp = (110 - (489.5 - h_ka[t]))  #
@@ -614,7 +614,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Ka[moy[t] - 1])
             gg_hydKA = np.append(gg_hydKA, hydTemp_dist)  #
 
-            # Cahora Bassa
+            # 4. Cahora Bassa (CB)
             h_cb[t] = self.CahoraBassa.storage_to_level(s_cb[t])  #
             qTurb_Temp = min(r_cb[t + 1], 5 * 452)  #
 
@@ -624,7 +624,7 @@ class ModelZambezi:
             hydTemp_dist = abs(hydTemp - self.tp_Cb[moy[t] - 1])
             gg_hydCB = np.append(gg_hydCB, hydTemp_dist)  #
 
-            # Kafue Gorge Lower
+            # 5. Kafue Gorge Lower KGL
             h_kgl[t] = self.KafueGorgeLower.storage_to_level(s_kgl[t])  #
             qTurb_Temp = min(r_kgl[t + 1], 97.4 * 5)  #
 
