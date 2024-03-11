@@ -349,6 +349,12 @@ class ModelZambezi:
             obj = np.append(obj, np.percentile(Jirr_def, 99))
 
         ### 3rd difference OPT
+        #***********#
+        obj_string = ''
+        for i in len(obj):
+            obj_string += str(obj[i]) + ' '
+        print('obj_string is:', obj_string)
+
         objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         objectives.close()
         ###
