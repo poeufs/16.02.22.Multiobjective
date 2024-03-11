@@ -350,7 +350,7 @@ class ModelZambezi:
 
         ### 3rd difference OPT
         objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
-        print('objectives:',objectives)
+        print('objectives:',str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         objectives.close()
         ###
 
