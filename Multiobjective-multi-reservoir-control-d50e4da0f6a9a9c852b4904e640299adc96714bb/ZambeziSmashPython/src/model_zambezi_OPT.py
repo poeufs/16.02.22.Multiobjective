@@ -522,7 +522,7 @@ class ModelZambezi:
             s_kgl[t + 1] = sd_rd[0]
             r_kgl[t + 1] = sd_rd[1]
 
-            # Irrigation district 2. Dependent on Cuando and KaLat
+            # Irrigation district 2. Dependent on Cuando, Batoka Gorge and KaLat
             r_irr2[t + 1] = self.overarching_policy.functions["irrigation"].get_output(
                 [q_Bg + q_Cuando + q_KaLat, self.irr_demand_dict["irr_demand2"][moy[t] - 1], 2,
                  self.irr_district_idx])  # compute the irrigation water diversion volume [m3/s] #

@@ -375,8 +375,8 @@ class ModelZambezi:
 
         ### Diff 4
         # Opening the files (ofstream in c++)
-        rDelta = open("../storage_release/three_policy_simulation/rDelta_" + self.PolicySim + ".txt", 'w+')
-        irrigation = open("../storage_release/three_policy_simulation/irr_" + self.PolicySim + ".txt", 'w+')
+        rDelta = open("../storage_release/bc_policy_simulation/rDelta_" + self.PolicySim + ".txt", 'w+')
+        irrigation = open("../storage_release/bc_policy_simulation/irr_" + self.PolicySim + ".txt", 'w+')
 
         # Initialize the mass_balance
         mass_balance_ReservoirSim = dict()
@@ -384,9 +384,9 @@ class ModelZambezi:
 
         for reservoir in ['cb', 'itt', 'ka', 'kgu', 'kgl']:
             qturb_ReservoirSim[reservoir] = open(
-                "../storage_release/three_policy_simulation/qturb_" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
+                "../storage_release/bc_policy_simulation/qturb_" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
             mass_balance_ReservoirSim[reservoir] = open(
-                "../storage_release/three_policy_simulation/" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
+                "../storage_release/bc_policy_simulation/" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
         ### End diff
         ## INITIALIZATION: storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
