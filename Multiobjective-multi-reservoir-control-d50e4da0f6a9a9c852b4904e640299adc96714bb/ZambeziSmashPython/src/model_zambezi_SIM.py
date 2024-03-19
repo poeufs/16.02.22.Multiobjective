@@ -350,6 +350,8 @@ class ModelZambezi:
 
         ### 3rd difference OPT
         print('range(len:', range(len(obj)))
+        for i in range(len(obj)):
+            print(i)
         print(type(obj))
         objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         print('objectives:',str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
