@@ -322,7 +322,7 @@ class ModelZambezi:
         obj = np.empty(0)
 
         ### Second difference
-        objectives = open("../objs/" + self.PolicySim + "_simulated.objs",
+        objectives = open("../objs/irr/" + self.PolicySim + "_simulated.objs",
                           'w+')  # opening the file to write the objective values
         ###
 

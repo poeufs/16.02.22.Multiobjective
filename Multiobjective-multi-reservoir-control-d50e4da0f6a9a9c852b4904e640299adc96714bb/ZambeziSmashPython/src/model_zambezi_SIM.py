@@ -322,7 +322,7 @@ class ModelZambezi:
         obj = np.empty(0)
 
         ### Second difference
-        objectives = open("../objs/" + self.PolicySim + "_simulated.objs",
+        objectives = open("../objs/bc/" + self.PolicySim + "_simulated.objs",
                           'w+')  # opening the file to write the objective values
         ###
 
@@ -349,6 +349,7 @@ class ModelZambezi:
             obj = np.append(obj, np.percentile(Jirr_def, 99))
 
         ### 3rd difference OPT
+        print('len(range:', len(range(obj)))
         objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         print('objectives:',str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         objectives.close()
