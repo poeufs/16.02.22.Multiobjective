@@ -470,6 +470,8 @@ class ModelZambezi:
             envDef_Temp, qTotIN, qTotIN_1 = tuple(20 * [float()])  #
         sd_rd = np.empty(0)  # storage and release resulting from daily integration
         uu = np.empty(0)
+
+        ## DIFF 1 cases
         gg_hydKGU, gg_hydITT, gg_hydKA, gg_hydCB, gg_hydKGL, gg_hydVF, \
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
@@ -523,7 +525,7 @@ class ModelZambezi:
 
             # call the POLICY function!
             uu = self.overarching_policy.functions["release"].get_norm_output(input)
-            # decision per reservoir assigned
+            # decision per reservoir initialized
             u_itt[t], u_kgu[t], u_ka[t], u_cb[t], u_kgl[t] = tuple(uu)
 
             # daily integration and assignment of monthly storage and release values
@@ -694,6 +696,7 @@ class ModelZambezi:
                 r_irr5[t + 1]) + " " + str(r_irr6[t + 1]) + " " + str(r_irr7[t + 1]) + " " + str(
                 r_irr8[t + 1]) + " " + str(r_irr9[t + 1]) + '\n')
             ### end dif
+            # DIFF 2 cases
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
@@ -739,6 +742,7 @@ class ModelZambezi:
             irrDefNorm_Temp = self.g_deficit_norm(irrDef_Temp, self.irr_demand_dict["irr_demand9"][moy[t] - 1])
             gg_irr9_NormDef = np.append(gg_irr9_NormDef, irrDefNorm_Temp)
 
+            #DIF 3 cases
             deficitIRR_tot = np.append(deficitIRR_tot,
                                        gg_irr2_NormDef[t] + gg_irr3_NormDef[t] + gg_irr4_NormDef[t] + gg_irr5_NormDef[
                                            t] + gg_irr6_NormDef[t] + gg_irr7_NormDef[t] + gg_irr8_NormDef[t] +
@@ -751,6 +755,7 @@ class ModelZambezi:
             deficitIRR_7 = np.append(deficitIRR_7, gg_irr7_NormDef[t])
             deficitIRR_8 = np.append(deficitIRR_8, gg_irr8_NormDef[t])
             deficitIRR_9 = np.append(deficitIRR_9, gg_irr9_NormDef[t])
+            #
 
             # DELTA ENVIRONMENT DEFICIT
             envDef_Temp = pow(
@@ -775,7 +780,7 @@ class ModelZambezi:
 
         # NOT Super clear if below implementation is correct. Check!!!!
         # time-aggregation = average of step costs starting from month 1 (i.e., January 1974) //
-
+        #DIFF 4 cases
         JJ = np.empty(0)
         JJ = np.append(JJ, np.mean(deficitHYD_tot))
         JJ = np.append(JJ, np.mean(deficitENV_tot))
