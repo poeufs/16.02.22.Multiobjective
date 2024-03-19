@@ -163,7 +163,7 @@ def irr_plot_quantities():
     irr_index = ['2', '3', '4', '5', '6', '7', '8', '9'] #*******************#
     irr_d = ['Irrigation District 2', 'Irrigation District 3', 'Irrigation District 4', 'Irrigation District 5',
              'Irrigation District 6', 'Irrigation District 7', 'Irrigation District 8', 'Irrigation District 9']
-    label_policy = ['Best Hydropower', 'Best Environment', 'Best Irrigation', 'Target Demand']
+    label_policy = ['Best Hydropower', 'Best Environment', 'Best Irrigation', 'Target Demand', 'Best Irrigation 2', 'Best Irrigation 3' , 'Best Irrigation 4', 'Best Irrigation 5', 'Best Irrigation 6', 'Best Irrigation 7', 'Best Irrigation 8', 'Best Irrigation 9']
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     n_months = 12
     n_years = 20
