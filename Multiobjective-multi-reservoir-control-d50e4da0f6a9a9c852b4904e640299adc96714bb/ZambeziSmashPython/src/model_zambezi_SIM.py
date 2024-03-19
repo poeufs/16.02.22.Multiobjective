@@ -353,9 +353,10 @@ class ModelZambezi:
 
         for i in range(len(obj)):
             obj_string += str(obj[i]) + ' '
-        print(obj_string)
-        objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
-        print('objectives:',str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
+        print('objectives:',obj_string)
+        objectives.write(obj_string)
+        #objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
+        #print('objectives:',str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         objectives.close()
         ###
 
@@ -397,6 +398,7 @@ class ModelZambezi:
                 open(os.path.join(folder_path, "qturb_" + reservoir + "_" + self.PolicySim + ".txt"), 'w+')
             mass_balance_ReservoirSim[reservoir] = open(os.path.join(folder_path + reservoir + "_" + self.PolicySim + ".txt"), 'w+')
         ### End diff
+
         ## INITIALIZATION: storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
 

@@ -13,7 +13,7 @@ from smash import Policy
 
 import numpy as np
 import pandas as pd
-
+import os
 
 class ModelZambezi:
     """
@@ -349,13 +349,14 @@ class ModelZambezi:
             obj = np.append(obj, np.percentile(Jirr_def, 99))
 
         ### 3rd difference OPT
-        #***********#
         obj_string = ''
+
         for i in range(len(obj)):
             obj_string += str(obj[i]) + ' '
-        print('obj_string is:', obj_string)
-
-        objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
+        print('objectives:', obj_string)
+        objectives.write(obj_string)
+        # objectives.write(str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
+        # print('objectives:',str(obj[0]) + ' ' + str(obj[1]) + ' ' + str(obj[2]))
         objectives.close()
         ###
 
@@ -377,7 +378,7 @@ class ModelZambezi:
         JJ : np.array
             Array of calculated KPI values
         """
-
+        '''
         ### Diff 4
         # Opening the files (ofstream in c++)
         rDelta = open("../storage_release/three_policy_simulation/rDelta_" + self.PolicySim + ".txt", 'w+')
@@ -393,6 +394,29 @@ class ModelZambezi:
             mass_balance_ReservoirSim[reservoir] = open(
                 "../storage_release/three_policy_simulation/" + reservoir + "_" + self.PolicySim + ".txt", 'w+')
         ### End diff
+        '''
+
+        ### Diff 4 (BASECASE COPY)
+        # Opening the files (ofstream in c++)
+        folder_path = "../storage_release/irr_policy_simulation/"
+        os.makedirs(folder_path, exist_ok=True)
+
+        # Open or create the file for writing
+        irrigation = open(os.path.join(folder_path, "irr_" + self.PolicySim + ".txt"), 'w+')
+        rDelta = open(os.path.join(folder_path + "rDelta_" + self.PolicySim + ".txt"), 'w+')
+
+        # Initialize the mass_balance
+        mass_balance_ReservoirSim = dict()
+        qturb_ReservoirSim = dict()
+
+        for reservoir in ['cb', 'itt', 'ka', 'kgu', 'kgl']:
+            qturb_ReservoirSim[reservoir] = \
+                open(os.path.join(folder_path, "qturb_" + reservoir + "_" + self.PolicySim + ".txt"), 'w+')
+            mass_balance_ReservoirSim[reservoir] = open(
+                os.path.join(folder_path + reservoir + "_" + self.PolicySim + ".txt"), 'w+')
+        ### End diff
+
+
         ## INITIALIZATION: storage (s), level (h), decision (u), release(r) (Hydropower) : np.array
         import numpy as np
 
