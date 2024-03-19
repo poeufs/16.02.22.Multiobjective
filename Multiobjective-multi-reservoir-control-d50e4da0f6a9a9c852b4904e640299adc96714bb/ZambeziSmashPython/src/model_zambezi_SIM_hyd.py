@@ -1,5 +1,5 @@
 # ===========================================================================
-# Name        : model_zambezi_SIM.py
+# Name        : model_zambezi_SIM_hyd.py
 # Author      : YasinS, adapted from JazminZ & ?
 # Version     : 0.05
 # Copyright   : Your copyright notice
@@ -322,7 +322,7 @@ class ModelZambezi:
         obj = np.empty(0)
 
         ### Second difference
-        objectives = open("../objs/irr/" + self.PolicySim + "_simulated.objs",
+        objectives = open("../objs/hyd/" + self.PolicySim + "_simulated.objs",
                           'w+')  # opening the file to write the objective values
         ###
 
@@ -379,9 +379,9 @@ class ModelZambezi:
             Array of calculated KPI values
         """
 
-        ### Diff 4 (BASECASE COPY)
+        ### Diff 4
         # Opening the files (ofstream in c++)
-        folder_path = "../storage_release/irr_policy_simulation/"
+        folder_path = "../storage_release/hyd_policy_simulation/"
         os.makedirs(folder_path, exist_ok=True)
 
         # Open or create the file for writing
@@ -459,8 +459,8 @@ class ModelZambezi:
             deficitHYD_tot, gg_irr2, gg_irr3, gg_irr4, gg_irr5, gg_irr6, gg_irr7, \
             gg_irr8, gg_irr9, gg_irr2_NormDef, gg_irr3_NormDef, gg_irr4_NormDef, \
             gg_irr5_NormDef, gg_irr6_NormDef, gg_irr7_NormDef, gg_irr8_NormDef, \
-            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot, deficitIRR_2, deficitIRR_3, deficitIRR_4, \
-            deficitIRR_5, deficitIRR_6, deficitIRR_7, deficitIRR_8, deficitIRR_9 = tuple(34 * [np.empty(0)])
+            gg_irr9_NormDef, deficitIRR_tot, gg_env, deficitENV_tot, deficitHYD_itt, deficitHYD_kgu, \
+            deficitHYD_ka, deficitHYD_cb, deficitHYD_kgl = tuple(31 * [np.empty(0)])
         input, outputDEF = tuple([np.empty(0), np.empty(0)])
 
         # initial condition
@@ -679,11 +679,17 @@ class ModelZambezi:
                 r_irr5[t + 1]) + " " + str(r_irr6[t + 1]) + " " + str(r_irr7[t + 1]) + " " + str(
                 r_irr8[t + 1]) + " " + str(r_irr9[t + 1]) + '\n')
             ### end dif
+
             # DIFF 2 cases
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
-
+            deficitHYD_itt = np.append(deficitHYD_itt, gg_hydITT[t])
+            deficitHYD_kgu = np.append(deficitHYD_kgu, gg_hydKGU[t])
+            deficitHYD_ka = np.append(deficitHYD_ka, gg_hydKA[t])
+            deficitHYD_cb = np.append(deficitHYD_cb, gg_hydCB[t])
+            deficitHYD_kgl = np.append(deficitHYD_kgl, gg_hydKGL[t])
+            ###
 
             irrDef_Temp = pow(max(self.irr_demand_dict["irr_demand2"][moy[t] - 1] - r_irr2[t + 1], 0), 2)
             gg_irr2 = np.append(gg_irr2, irrDef_Temp)  # SQUARED irrigation deficit
@@ -730,14 +736,7 @@ class ModelZambezi:
                                        gg_irr2_NormDef[t] + gg_irr3_NormDef[t] + gg_irr4_NormDef[t] + gg_irr5_NormDef[
                                            t] + gg_irr6_NormDef[t] + gg_irr7_NormDef[t] + gg_irr8_NormDef[t] +
                                        gg_irr9_NormDef[t])  # SQUARED irrigation deficit
-            deficitIRR_2 = np.append(deficitIRR_2, gg_irr2_NormDef[t])
-            deficitIRR_3 = np.append(deficitIRR_3, gg_irr3_NormDef[t])
-            deficitIRR_4 = np.append(deficitIRR_4, gg_irr4_NormDef[t])
-            deficitIRR_5 = np.append(deficitIRR_5, gg_irr5_NormDef[t])
-            deficitIRR_6 = np.append(deficitIRR_6, gg_irr6_NormDef[t])
-            deficitIRR_7 = np.append(deficitIRR_7, gg_irr7_NormDef[t])
-            deficitIRR_8 = np.append(deficitIRR_8, gg_irr8_NormDef[t])
-            deficitIRR_9 = np.append(deficitIRR_9, gg_irr9_NormDef[t])
+
             #
 
             # DELTA ENVIRONMENT DEFICIT
@@ -768,14 +767,11 @@ class ModelZambezi:
         JJ = np.append(JJ, np.mean(deficitHYD_tot))
         JJ = np.append(JJ, np.mean(deficitENV_tot))
         JJ = np.append(JJ, np.mean(deficitIRR_tot))
-        JJ = np.append(JJ, np.mean(deficitIRR_2))
-        JJ = np.append(JJ, np.mean(deficitIRR_3))
-        JJ = np.append(JJ, np.mean(deficitIRR_4))
-        JJ = np.append(JJ, np.mean(deficitIRR_5))
-        JJ = np.append(JJ, np.mean(deficitIRR_6))
-        JJ = np.append(JJ, np.mean(deficitIRR_7))
-        JJ = np.append(JJ, np.mean(deficitIRR_8))
-        JJ = np.append(JJ, np.mean(deficitIRR_9))
+        JJ = np.append(JJ, np.mean(deficitHYD_itt))
+        JJ = np.append(JJ, np.mean(deficitHYD_kgu))
+        JJ = np.append(JJ, np.mean(deficitHYD_ka))
+        JJ = np.append(JJ, np.mean(deficitHYD_cb))
+        JJ = np.append(JJ, np.mean(deficitHYD_kgl))
 
         return JJ
 
