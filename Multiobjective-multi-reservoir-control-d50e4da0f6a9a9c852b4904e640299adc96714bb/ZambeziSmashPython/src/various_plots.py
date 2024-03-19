@@ -166,10 +166,27 @@ def irr_plot_quantities():
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     n_months = 12
     n_years = 20
+    '''
     purple = '#7a0177';
     yellow = '#fdaa09';
     blue = '#1d91c0'  # green='#41ab5d'
     colors = [purple, yellow, blue]
+    '''
+    purple = '#7a0177'
+    yellow = '#fdaa09'
+    blue = '#1d91c0'
+    green = '#41ab5d'
+    red = '#e41a1c'
+    orange = '#ff7f00'
+    cyan = '#a65628'
+    magenta = '#f781bf'
+    dark_yellow = '#ffba00'
+    dark_green = '#4daf4a'
+    dark_blue = '#377eb8'
+    dark_purple = '#984ea3'
+
+    colors = [blue, green, purple, 'black', red, orange, cyan, magenta, dark_yellow, dark_green, dark_blue, dark_purple]
+
     variables_names = [r'$q_t$', r'$h_t$', r'$s_t$', r'$s_{t+1}$', r'$r_{t+1}$', r'$r^{delay}_{t+1}$']
     variables = ['q', 'h_t', 's_t', 's_t+1', 'r_t+1', 'r_d_t+1']
 
