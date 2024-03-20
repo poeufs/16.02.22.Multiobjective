@@ -648,7 +648,7 @@ class ModelZambezi:
             deficitHYD_tot = np.append(deficitHYD_tot,
                                        gg_hydITT[t] + gg_hydKGU[t] + gg_hydKA[t] + gg_hydCB[t] + gg_hydKGL[
                                            t])  # energy production
-            # individual hydropower deficits NOBJ CHANGE
+            # individual hydropower deficits
             deficitHYD_itt = np.append(deficitHYD_itt, gg_hydITT[t])
             deficitHYD_kgu = np.append(deficitHYD_kgu, gg_hydKGU[t])
             deficitHYD_ka = np.append(deficitHYD_ka, gg_hydKA[t])
