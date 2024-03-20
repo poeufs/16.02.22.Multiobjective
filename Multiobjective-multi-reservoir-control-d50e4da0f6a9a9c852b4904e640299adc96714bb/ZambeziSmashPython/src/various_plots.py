@@ -162,7 +162,7 @@ def irr_plot_quantities():
     irr_index = ['2', '3', '4', '5', '6', '7', '8', '9'] #*******************#
     irr_d = ['Irrigation District 2', 'Irrigation District 3', 'Irrigation District 4', 'Irrigation District 5',
              'Irrigation District 6', 'Irrigation District 7', 'Irrigation District 8', 'Irrigation District 9']
-    label_policy = ['Best Hydropower', 'Best Environment', 'Best Irrigation', 'Target Demand', 'Best Irrigation 2', 'Best Irrigation 3', 'Best Irrigation 4', 'Best Irrigation 5', 'Best Irrigation 6', 'Best Irrigation 7', 'Best Irrigation 8', 'Best Irrigation 9']
+    label_policy = ['Best Hydropower', 'Best Environment', 'Best Irrigation', 'Best Irrigation 2', 'Best Irrigation 3', 'Best Irrigation 4', 'Best Irrigation 5', 'Best Irrigation 6', 'Best Irrigation 7', 'Best Irrigation 8', 'Best Irrigation 9', 'Target Demand']
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     n_months = 12
     n_years = 20
@@ -185,7 +185,7 @@ def irr_plot_quantities():
     dark_blue = '#377eb8'
     dark_purple = '#984ea3'
 
-    colors = [blue, green, purple, 'black', red, orange, cyan, magenta, dark_yellow, dark_green, dark_blue, dark_purple]
+    colors = [blue, green, purple, red, orange, cyan, magenta, dark_yellow, dark_green, dark_blue, dark_purple]
 
     variables_names = [r'$q_t$', r'$h_t$', r'$s_t$', r'$s_{t+1}$', r'$r_{t+1}$', r'$r^{delay}_{t+1}$']
     variables = ['q', 'h_t', 's_t', 's_t+1', 'r_t+1', 'r_d_t+1']
