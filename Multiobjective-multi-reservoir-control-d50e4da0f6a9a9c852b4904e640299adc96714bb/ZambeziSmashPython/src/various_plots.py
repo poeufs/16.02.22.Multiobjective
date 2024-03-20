@@ -251,11 +251,69 @@ def hyd_plot_quantities():
     # Assign colors from the colormap to label policies
     colors = [colormap(i) for i in np.linspace(0, 1, len(label_policy))]
 
-    ## TEST ##
-    # Set image size to be half of a Word page (8.5 inches by 5.5 inches) with the same aspect ratio
-    aspect_ratio = 8.5 / 11  # Aspect ratio of a Word page
-    fig_width = 8.5 / 2
-    fig_height = fig_width * aspect_ratio
+    variables_names = [r'$q_t$', r'$h_t$', r'$s_t$', r'$s_{t+1}$', r'$r_{t+1}$', r'$r^{delay}_{t+1}$']
+    variables = ['q', 'h_t', 's_t', 's_t+1', 'r_t+1', 'r_d_t+1']
+
+    image_format = ['png']
+    for im in range(len(image_format)):
+        for policy in range(len(policies)):
+            if not os.path.exists(output_folder + '/' + feature + '/' + image_format[im] + '/' + policies[policy]):
+                os.makedirs(output_folder + '/' + feature + '/' + image_format[im] + '/' + policies[policy])
+    # this generates 8 plots one for each irrigation district:
+    for ir in range(len(irr_d)):
+        irr_plots(input_folder, target_input_folder, output_folder, feature, ir, irr_d, irr_index, policies, months,
+                  label_policy, n_months, n_years, colors)
+
+    # this a summary of the delta releases:
+    mef_plots(input_folder, output_folder, label_policy, delta_release_balance, feature, policies, n_years, n_months,
+              delta_target, colors, months, title, target_input_folder)
+
+    v = 4  # to print only releases across all reservoirs:
+    # for v in range(len(variables)-1): to print all summary figures:
+    for p in range(len(policies)):
+        fig = plt.figure()
+        for r in range(len(reservoirs)):
+            summary_plot(v, p, r, fig, input_folder, output_folder, feature, policies, variables, label_policy,
+                         reservoirs, res_names, months, n_years, n_months)
+
+def full_plot_quantities():
+    plt.rcParams["font.family"] = "Myriad Pro"
+    sns.set_style("whitegrid")
+
+    input_folder = '../storage_release/'
+    # input_folder_objs='../for_plots/'
+    target_input_folder = '../data/'
+    output_folder = '../plots/'
+    delta_target = np.loadtxt(target_input_folder + 'MEF_delta.txt')
+
+    # copy here..
+    #####################################
+    feature = 'full_policy_simulation'
+    # reservoirs=['itt','kgu','kgl','ka','bg','dg','cb','mn']
+    reservoirs = ['itt', 'kgu', 'kgl', 'ka', 'cb']
+    title = '5_res_wKGL'
+    # input_file='Zambezi_'+title+'.reference'  #'.reference'change file_name
+
+    # data= np.loadtxt('../parallel/sets/'+feature+'/'+input_file, skiprows=0+1+2-1)
+    delta_release_balance = '\n('r'$r_{CB}+Q_{Shire}-r_{Irrd7}-r_{Irrd8}-r_{Irrd9}$)'
+    # res_names=['Itezhitezhi','Kafue G. Upper','Kafue G. Lower','Kariba','Batoka Gorge','Devil\'s Gorge','Cahora Bassa', 'Mphanda Nkuwa']
+    res_names = ['Itezhitezhi', 'Kafue G. Upper', 'Kafue G. Lower', 'Kariba', 'Cahora Bassa']
+    #####copy the segment above#########
+
+    policies = ['best_hydro', 'best_env', 'best_irr', 'best_irr2', 'best_irr3', 'best_irr4', 'best_irr5', 'best_irr6', 'best_irr7', 'best_irr8', 'best_irr9',"best_hydITT", "best_hydKGU", "best_hydKA","best_hydCB",'best_hydKGL']
+    irr_index = ['2', '3', '4', '5', '6', '7', '8', '9'] #*******************#
+    irr_d = ['Irrigation District 2', 'Irrigation District 3', 'Irrigation District 4', 'Irrigation District 5',
+             'Irrigation District 6', 'Irrigation District 7', 'Irrigation District 8', 'Irrigation District 9']
+    label_policy = ['Best Hydropower', 'Best Environment', 'Best Irrigation', 'Best Irrigation 2', 'Best Irrigation 3', 'Best Irrigation 4', 'Best Irrigation 5', 'Best Irrigation 6', 'Best Irrigation 7', 'Best Irrigation 8', 'Best Irrigation 9', 'Best Hydropower ITT', 'Best Hydropower KGU', 'Best Hydropower KA', 'Best Hydropower CB', 'Best Hydropower KGL', 'Target Demand']
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    n_months = 12
+    n_years = 20
+
+    # Define colormap
+    colormap = plt.cm.get_cmap('tab20')
+
+    # Assign colors from the colormap to label policies
+    colors = [colormap(i) for i in np.linspace(0, 1, len(label_policy))]
 
     variables_names = [r'$q_t$', r'$h_t$', r'$s_t$', r'$s_{t+1}$', r'$r_{t+1}$', r'$r^{delay}_{t+1}$']
     variables = ['q', 'h_t', 's_t', 's_t+1', 'r_t+1', 'r_d_t+1']
@@ -281,6 +339,8 @@ def hyd_plot_quantities():
         for r in range(len(reservoirs)):
             summary_plot(v, p, r, fig, input_folder, output_folder, feature, policies, variables, label_policy,
                          reservoirs, res_names, months, n_years, n_months)
+
+
 def irr_plots(input_folder, t_irr_folder, output_folder, feature, ir, irr_d, irr_index, policies, months, label_policy,
               n_months, n_years, colors):
     left = 0.05;
