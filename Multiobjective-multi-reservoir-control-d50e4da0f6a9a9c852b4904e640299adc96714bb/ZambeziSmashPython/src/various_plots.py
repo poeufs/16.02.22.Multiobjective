@@ -204,7 +204,7 @@ def irr_plot_quantities():
     mef_plots(input_folder, output_folder, label_policy, delta_release_balance, feature, policies, n_years, n_months,
               delta_target, colors, months, title, target_input_folder)
 
-    v = 4  # to print only releases across all reservoirs:
+    v = 5  # to print only releases across all reservoirs:
     # for v in range(len(variables)-1): to print all summary figures:
     for p in range(len(policies)):
         fig = plt.figure()
