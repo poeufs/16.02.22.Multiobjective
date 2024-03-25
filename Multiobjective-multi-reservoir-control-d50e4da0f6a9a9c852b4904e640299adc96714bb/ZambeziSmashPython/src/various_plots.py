@@ -207,8 +207,10 @@ def irr_plot_quantities():
     v = 4  # to print only releases across all reservoirs:
     # for v in range(len(variables)-1): to print all summary figures:
     for p in range(len(policies)):
+        print('P',p)
         fig = plt.figure()
         for r in range(len(reservoirs)):
+            print('r', r)
             summary_plot(v, p, r, fig, input_folder, output_folder, feature, policies, variables, label_policy,
                          reservoirs, res_names, months, n_years, n_months)
 
