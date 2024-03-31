@@ -70,7 +70,7 @@ if __name__ == '__main__':
     seeds = 1 #5
     epsilon_list = [0.4, 0.6, 0.5, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'mln'  # add a comment to recognize the run output
+    run_comment = 'mln3'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"IR_{run_comment}_{nfe}nfe_{seeds}seed" #IR = Irrigation (11objectives)
