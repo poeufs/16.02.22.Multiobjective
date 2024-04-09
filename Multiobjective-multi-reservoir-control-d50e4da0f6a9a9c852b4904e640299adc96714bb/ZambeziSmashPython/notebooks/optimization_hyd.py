@@ -62,14 +62,14 @@ if __name__ == '__main__':
 
     # Specify the nfe and add a comment for the run save name
     nfe = 1000000 #150000 1 seed; 35000 5 seeds in HPC
-    seeds = 1 #5
+    number_of_seeds = 5
     epsilon_list = [0.9, 0.99, 0.9, 0.99, 0.99, 0.99, 0.99, 0.99] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # [0.2, 0.5, 0.3], previous version's epsilons: [0.1] * len(model.outcomes)
     run_comment = 'mln_4'  # add a comment to recognize the run output
 
     ######################################################################################
 
-    run_label = f"HYD_{run_comment}_{nfe}nfe_{seeds}seed" # BC = BaseCase (3 objectives)
+    run_label = f"HYD_{run_comment}_{nfe}nfe_{number_of_seeds}seed" # BC = BaseCase (3 objectives)
     dir_runs = f"{cwd_initial}/../runs"
 
     # Check if the directory already exists and create it if it doesn't
@@ -115,7 +115,8 @@ if __name__ == '__main__':
     print("time before is", before)
 
     with MultiprocessingEvaluator(model) as evaluator:
-        for i in tqdm(range(seeds)): # for every seed
+        for i in tqdm(range(number_of_seeds)): # for every seed
+            np.random.seed(i)
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
             # the archive logger writes the archive to disk for every x nfe
