@@ -79,10 +79,10 @@ if __name__ == '__main__':
     # Specify the nfe and add a comment for the run save name
     nfe = 1000000  # 150000 #35000
     seeds = 1  # 5
-    epsilon_list = [0.9, 0.99, 0.9, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99,
-                    0.99, 0.95, 0.95, 0.95, 0.95, 0.95]  # Test values: [0.9] * len(model.outcomes), after observing base case:
+    epsilon_list = [0.9, 1, 0.9, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1,
+                    1.1, 1, 1, 1, 1, 1]  # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'mln_3.4'  # add a comment to recognize the run output
+    run_comment = 'mln_3_randseed'  # add a comment to recognize the run output
     ######################################################################################
 
     run_label = f"FULL_{run_comment}_{nfe}nfe_{seeds}seed"  #FULL (16objectives)
@@ -133,6 +133,7 @@ if __name__ == '__main__':
 
     with MultiprocessingEvaluator(model) as evaluator:
         for i in tqdm(range(seeds)):  # for every seed
+            np.random.seed(i)
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
             # the archive logger writes the archive to disk for every x nfe
