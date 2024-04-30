@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import sys
-
+import random
 from tqdm import tqdm
 from datetime import datetime
 
@@ -43,49 +43,52 @@ def model_wrapper(**kwargs):
     return Hydropower, Environment, Irrigation, Irrigation2, Irrigation3, Irrigation4, Irrigation5, Irrigation6, \
         Irrigation7, Irrigation8, Irrigation9, HydropowerITT, HydropowerKGU, HydropowerKA, HydropowerCB, HydropowerKGL
 
-
-# specify model
-model = Model('zambeziproblem', function=model_wrapper)
-
-# levers
-model.levers = [RealParameter('v' + str(i), -1, 1) for i in range(ZambeziProblem.Nvar)]
-
-# specify outcomes
-model.outcomes = [ScalarOutcome('Hydropower', ScalarOutcome.MINIMIZE),  # Minimize, because deficits
-                  ScalarOutcome('Environment', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation2', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation3', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation4', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation5', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation6', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation7', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation8', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('Irrigation9', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerITT', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerKGU', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerKA', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerCB', ScalarOutcome.MINIMIZE),
-                  ScalarOutcome('HydropowerKGL', ScalarOutcome.MINIMIZE),
-                  ]
-
 if __name__ == '__main__':
     print('within main statement')
+
+    # specify model
+    model = Model('zambeziproblem', function=model_wrapper)
+
+    # levers
+    model.levers = [RealParameter('v' + str(i), -1, 1) for i in range(ZambeziProblem.Nvar)]
+
+    # specify outcomes
+    model.outcomes = [ScalarOutcome('Hydropower', ScalarOutcome.MINIMIZE),  # Minimize, because deficits
+                      ScalarOutcome('Environment', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation2', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation3', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation4', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation5', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation6', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation7', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation8', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('Irrigation9', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('HydropowerITT', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('HydropowerKGU', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('HydropowerKA', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('HydropowerCB', ScalarOutcome.MINIMIZE),
+                      ScalarOutcome('HydropowerKGL', ScalarOutcome.MINIMIZE),
+                      ]
+
+
+
     project_dir = os.getcwd()
 
     ######################################################################################
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 1000000  # 150000 #35000
-    n_seeds = 1  # 5
-    epsilon_list = [0.9, 1, 0.9, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1,
-                    1.1, 1, 1, 1, 1, 1]  # Test values: [0.9] * len(model.outcomes), after observing base case:
+    nfe = 200000
+    number_of_seeds = 5  # 5
+    epsilon_list = [0.9, 1, 0.9, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2,
+                    1.2, 1, 1, 1, 1, 1]  # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'mln_3_randseed'  # add a comment to recognize the run output
+    seeds_list = [17, 42, 63, 188, 1234]
+    run_comment = 'pseudo'  # add a comment to recognize the run output
     ######################################################################################
 
-    run_label = f"FULL_{run_comment}_{nfe}nfe_{n_seeds}seed"  #FULL (16objectives)
+    run_label = f"FULL_{run_comment}_{nfe}nfe_{number_of_seeds}seed"  #FULL (16objectives)
     dir_runs = f"{cwd_initial}/../runs"
 
     # Check if the directory already exists and create it if it doesn't
@@ -132,14 +135,13 @@ if __name__ == '__main__':
     print("time before is", before)
 
     with MultiprocessingEvaluator(model) as evaluator:
-        for i in tqdm(range(n_seeds)):  # for every seed
+        for i in tqdm(range(number_of_seeds)):  # for every seed
             s = seeds_list[i]
             np.random.seed(int(s))
             random.seed(int(s))
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
             # the archive logger writes the archive to disk for every x nfe
-            # the epsilon progress tracks during runtime
             convergence_metrics = [
                 ArchiveLogger(
                     "./archives",

@@ -319,7 +319,7 @@ if __name__ == "__main__":
 
             )
 
-            results.to_csv(os.path.join("./data", f"results{i}"), index=False)
+            results.to_csv(os.path.join("data", f"results{i}"), index=False)
 '''
             # Remove '/tmp' if it exists
             path = os.path.join("./data", "tmp")

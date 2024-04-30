@@ -6,6 +6,7 @@ import os
 import sys
 from tqdm import tqdm
 from datetime import datetime
+import random
 
 from ema_workbench import (MultiprocessingEvaluator, ema_logging, RealParameter, ScalarOutcome, Constant,
                            Model, HypervolumeMetric, save_results)
@@ -59,13 +60,14 @@ if __name__ == '__main__':
 
     # Specify the nfe and add a comment for the run save name
     nfe = 200000 # 1 seed; 35000 5 seeds in HPC
-    seeds = 5 #5
+    number_of_seeds = 5 #5
     epsilon_list = [0.2, 0.5, 0.3] # Test values: [0.9] * len(model.outcomes), after observing base case: [0.2, 0.5, 0.1], previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'BC'  # add a comment to recognize the run output
+    seeds_list = [17, 42, 63, 188, 1234]
+    run_comment = 'BC_pseudo'  # add a comment to recognize the run output
 
     ######################################################################################
 
-    run_label = f"{run_comment}_{nfe}nfe_{seeds}seed" # BC = BaseCase (3 objectives)
+    run_label = f"BC_{run_comment}_{nfe}nfe_{number_of_seeds}seed" # BC = BaseCase (3 objectives)
     dir_runs = f"{cwd_initial}/../runs"
 
     # Check if the directory already exists and create it if it doesn't
@@ -111,7 +113,10 @@ if __name__ == '__main__':
     print("time before is", before)
 
     with MultiprocessingEvaluator(model) as evaluator:
-        for i in tqdm(range(seeds)): # for every seed
+        for i in tqdm(range(number_of_seeds)):  # for every seed
+            s = seeds_list[i]
+            np.random.seed(int(s))
+            random.seed(int(s))
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
             # the archive logger writes the archive to disk for every x nfe
@@ -173,7 +178,7 @@ if __name__ == '__main__':
 
     # Merge the 5 runs of the optimization
     problem = to_problem(model, searchover="levers")
-    epsilons = [0.05] * len(model.outcomes)
+    epsilons = [0.2] * len(model.outcomes)
     merged_results = epsilon_nondominated(results_list, epsilons, problem)
 
     print('merged_results', merged_results, 'saved to: ', os.getcwd())

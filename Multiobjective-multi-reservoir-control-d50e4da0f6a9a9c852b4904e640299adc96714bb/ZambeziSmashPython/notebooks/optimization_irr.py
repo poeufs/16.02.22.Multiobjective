@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import sys
+import random
 
 from tqdm import tqdm
 from datetime import datetime
@@ -66,14 +67,15 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 1000000 #200000
-    seeds = 1 #5
-    epsilon_list = [0.4, 0.6, 0.5, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6] # Test values: [0.9] * len(model.outcomes), after observing base case:
+    nfe = 200000 #200000
+    number_of_seeds = 5 #5
+    epsilon_list = [0.4, 0.6, 0.5, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
-    run_comment = 'mln3'  # add a comment to recognize the run output
+    seeds_list = [17, 42, 63, 188, 1234]
+    run_comment = 'pseudo'  # add a comment to recognize the run output
     ######################################################################################
 
-    run_label = f"IR_{run_comment}_{nfe}nfe_{seeds}seed" #IR = Irrigation (11objectives)
+    run_label = f"IR_{run_comment}_{nfe}nfe_{number_of_seeds}seed" #IR = Irrigation (11objectives)
     dir_runs = f"{cwd_initial}/../runs"
 
     # Check if the directory already exists and create it if it doesn't
@@ -119,7 +121,10 @@ if __name__ == '__main__':
     print("time before is", before)
 
     with MultiprocessingEvaluator(model) as evaluator:
-        for i in tqdm(range(seeds)): # for every seed
+        for i in tqdm(range(number_of_seeds)):  # for every seed
+            s = seeds_list[i]
+            np.random.seed(int(s))
+            random.seed(int(s))
             print("working directory within evaluator is", os.getcwd())
             # we create 2 convergence tracker metrics
             # the archive logger writes the archive to disk for every x nfe
@@ -181,7 +186,7 @@ if __name__ == '__main__':
 
     # Merge the 5 runs of the optimization
     problem = to_problem(model, searchover="levers")
-    epsilons = [0.4] * len(model.outcomes)
+    epsilons = [0.5] * len(model.outcomes)
     merged_results = epsilon_nondominated(results_list, epsilons, problem)
 
     print('merged_results', merged_results, 'saved to: ', os.getcwd())
