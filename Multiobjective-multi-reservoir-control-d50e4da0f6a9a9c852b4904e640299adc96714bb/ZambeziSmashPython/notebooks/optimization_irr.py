@@ -67,8 +67,8 @@ if __name__ == '__main__':
     ################################# RUN SETTINGS #######################################
     ######################################################################################
     # Specify the nfe and add a comment for the run save name
-    nfe = 200000 #200000
-    number_of_seeds = 5 #5
+    nfe = 1000000 #200000
+    number_of_seeds = 1 #5
     epsilon_list = [0.4, 0.6, 0.5, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] # Test values: [0.9] * len(model.outcomes), after observing base case:
     # , previous version's epsilons: [0.1] * len(model.outcomes)
     seeds_list = [17, 42, 63, 188, 1234]
