@@ -10,7 +10,7 @@ The Zambezi River Basin (ZRB) EMODPS model was created to identify the Pareto-op
 
 Four levels of aggregation are considered: the baseline configuration with three objectives, the irrigation case with 11 objectives (including an individual objective for each irrigation district), the hydropower case with eight objectives (including the five hydropower reservoirs as objectives) and the full case with 16 objectives in total where the three baseline objectives are complemented with one objective for each irrigation district and hydropower reservoir. The Pareto set of the four different problem framings is visualized and analysed to conduct a comparison between the levels of aggregation.
 
-![image info](ReadmeImages/DAFNE_ReservoirsLayout.png)
+![image info](ReadmeImages/System_image_adapted_from_Yasin_2024.png)
 <figcaption align = "center"><b>Figure 1 - Overview of the modelled system</b></figcaption>
 
 Following the EMODPS methodology, release decisions are made by using a closed loop control policy that returns the decisions conditioned on dynamic inputs. Candidate control policies are initialised as highly parametrised general function approximators such as radial basis functions (RBF) and artificial neural networks (ANN). The aim of the optimisation module is to find the values for the parameters of the release policies for near pareto optimal solutions. Simulation module allows user to obtain the performance metrics and physical quantities of the system by running it with previously optimised policy functions.
